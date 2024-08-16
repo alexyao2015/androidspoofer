@@ -1,0 +1,13 @@
+#!/bin/bash
+
+set -eux -o pipefail
+
+docker build -t builder .
+docker run \
+  --name builder \
+  -e ANDROID_STORE_PASSWORD=${ANDROID_STORE_PASSWORD} \
+  -e ANDROID_KEY_PASSWORD=${ANDROID_KEY_PASSWORD} \
+  -v ${PWD}:/build \
+  builder
+# docker cp builder:/build/output .
+docker rm -f builder
