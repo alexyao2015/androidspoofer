@@ -45,7 +45,9 @@ try {
   let RWPrefs: RWPreferences;
   let ROPrefs: ROPreferences;
   if (1 == 1) {
+    // @ts-ignore For testing only
     RWPrefs = {};
+    // @ts-ignore For testing only
     ROPrefs = {};
   } else {
     RWPrefs = {
