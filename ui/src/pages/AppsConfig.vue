@@ -6,7 +6,6 @@ const PreferenceEditor = defineAsyncComponent(
   () => import("../components/PreferenceEditor.vue")
 );
 
-const notNull = (value: any) => !!value || "Required";
 const TypeFilter = Object.values(AppConfigTypes);
 const selectedType = ref(TypeFilter[0]);
 const searchField = ref("");
@@ -24,6 +23,7 @@ const selectedConfigs = () => {
       (config) =>
         config.key.includes(searchField.value) ||
         config.value.includes(searchField.value) ||
+        config.key === "" ||
         config.value === ""
     );
   }
@@ -55,7 +55,9 @@ const addConfig = () => {
     return;
   }
   const last_config = selected_configs[selected_configs.length - 1];
-  pref.rwPreferences.config.apps.push({ ...last_config });
+  const config_copy = { ...last_config };
+  config_copy.key = "";
+  pref.rwPreferences.config.apps.push(config_copy);
 };
 
 const removeConfig = (index: number) => {
@@ -63,6 +65,14 @@ const removeConfig = (index: number) => {
   const remove_config = selected_configs[index];
   const idx_to_remove = pref.rwPreferences.config.apps.indexOf(remove_config);
   pref.rwPreferences.config.apps.splice(idx_to_remove, 1);
+};
+
+const notNull = (value: any) => !!value || "Required";
+const noDuplicates = (value: any) => {
+  const duplicates = pref.rwPreferences.config.apps.filter(
+    (config) => config.key === value
+  );
+  return duplicates.length <= 1 || "Duplicate";
 };
 </script>
 
@@ -104,6 +114,8 @@ const removeConfig = (index: number) => {
           ></v-text-field> -->
           <v-select
             v-model="config.key"
+            validate-on="eager"
+            :rules="[noDuplicates, notNull]"
             label="App ID"
             hide-details="auto"
             :items="filteredAppList()"
@@ -116,6 +128,7 @@ const removeConfig = (index: number) => {
             v-model="config.value"
             clearable
             hide-details="auto"
+            :rules="[notNull]"
             label="Replacement Value"
           ></v-text-field>
           <div v-if="selectedType === AppConfigTypes.any">
