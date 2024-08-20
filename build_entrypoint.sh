@@ -14,5 +14,7 @@ cp -r /ui/* /build
 
 # Build the app
 ./gradlew build
-mkdir output || true
-mv app/build/outputs/apk/release/*.apk output
+mkdir -p output/apk || true
+mkdir -p output/reports || true
+mv app/build/outputs/apk/release/*.apk output/apk
+mv app/build/reports/*.html output/reports
