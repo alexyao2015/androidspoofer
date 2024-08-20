@@ -105,3 +105,4 @@ lint/tmp/
 # Ui webview
 /app/src/main/assets/webview
 /output
+/cache

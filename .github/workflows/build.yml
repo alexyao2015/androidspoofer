@@ -1,4 +1,4 @@
-name: Deploy
+name: Build
 
 on:
   push:
@@ -13,22 +13,25 @@ jobs:
         with:
           install: true
 
-      - name: Cache Docker layers
+      - name: Build Cache
         uses: actions/cache@v4
         continue-on-error: true
         with:
-          path: /tmp/.buildx-cache
-          key: ${{ runner.os }}-${{ github.sha }}
+          key: ${{ runner.os }}-${{ hashFiles('Dockerfile') }}-${{ github.sha }}
           restore-keys: |
-            ${{ runner.os }}-
+            ${{ runner.os }}-${{ hashFiles('Dockerfile') }}
+          path: |
+            cache
 
       - name: Build
         run: |
+          mkdir cache
+
           ANDROID_STORE_PASSWORD=${{ secrets.ANDROID_STORE_PASSWORD }} \
             ANDROID_KEY_PASSWORD=${{ secrets.ANDROID_KEY_PASSWORD }} \
             DOCKER_BUILD_ARGS="\
-              --cache-from type=local,src=/tmp/.buildx-cache \
-              --cache-to type=local,dest=/tmp/.buildx-cache-new \
+              --cache-from type=local,src=cache/buildx \
+              --cache-to type=local,dest=cache/buildx-new \
               " \
             ./build.sh
 
@@ -37,8 +40,8 @@ jobs:
       # https://github.com/moby/buildkit/issues/1896
       - name: Move cache
         run: |
-          rm -rf /tmp/.buildx-cache
-          mv /tmp/.buildx-cache-new /tmp/.buildx-cache
+          rm -rf cache/buildx
+          mv cache/buildx-new build/cache/buildx
 
       - name: Upload Artifact
         uses: actions/upload-artifact@v4

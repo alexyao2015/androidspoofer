@@ -9,7 +9,7 @@ RUN set -x \
 
 FROM alpine AS sdkmanager
 
-WORKDIR /sdkhome
+WORKDIR /sdk
 
 RUN set -x \
     && wget -O /tmp/sdk-tools.zip https://dl.google.com/android/repository/commandlinetools-linux-7583922_latest.zip \
@@ -21,17 +21,20 @@ RUN set -x \
 FROM eclipse-temurin:17
 WORKDIR /build
 
+ENV CACHE_DIR=/build/cache
+ENV GRADLE_USER_HOME=${CACHE_DIR}/gradle
+ENV ANDROID_HOME=${CACHE_DIR}/sdk
+
 # Install Android SDK
-ENV ANDROID_HOME=/sdkhome
-ENV PATH=/sdkhome/cmdline-tools/latest/bin:$PATH
-COPY --from=sdkmanager /sdkhome /sdkhome
-RUN set -x \
-    && yes | sdkmanager --licenses \
-    && sdkmanager \
-        "cmdline-tools;latest" \
-        "build-tools;34.0.0" \
-        "platform-tools" \
-        "platforms;android-34"
+ENV PATH=/sdk/cmdline-tools/latest/bin:$PATH
+# Mount a temporary volume to install the latest sdkmanager
+RUN --mount=type=bind,target=/tmp/sdk,source=/sdk,from=sdkmanager,rw \
+    set -x \
+    && mkdir /sdk \
+    && yes | /tmp/sdk/cmdline-tools/latest/bin/sdkmanager --licenses --sdk_root=/sdk \
+    && /tmp/sdk/cmdline-tools/latest/bin/sdkmanager \
+        --sdk_root=/sdk \
+          "cmdline-tools;latest"
 
 COPY --from=ui-build /app /ui/app
 COPY build_entrypoint.sh /
