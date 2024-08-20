@@ -21,8 +21,8 @@ const selectedConfigs = () => {
   if (searchField.value !== null) {
     app_configs = app_configs.filter(
       (config) =>
-        config.key.includes(searchField.value) ||
-        config.value.includes(searchField.value) ||
+        config.key.toLowerCase().includes(searchField.value.toLowerCase()) ||
+        config.value.toLowerCase().includes(searchField.value.toLowerCase()) ||
         config.key === "" ||
         config.value === ""
     );
@@ -36,7 +36,7 @@ const filteredAppList = () => {
     return apps_list;
   }
   return apps_list.filter((app) => {
-    return app.includes(searchFieldAppsList.value);
+    return app.toLowerCase().includes(searchFieldAppsList.value.toLowerCase());
   });
 };
 
@@ -126,6 +126,7 @@ const noDuplicates = (value: any) => {
           ></v-list-item>
           <v-text-field
             v-model="config.value"
+            validate-on="eager"
             clearable
             hide-details="auto"
             :rules="[notNull]"
