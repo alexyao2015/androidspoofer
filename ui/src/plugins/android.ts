@@ -44,6 +44,7 @@ try {
   console.log("Android interface not found");
   let RWPrefs: RWPreferences;
   let ROPrefs: ROPreferences;
+  // @ts-ignore For testing only
   if (1 == 0) {
     // @ts-ignore For testing only
     RWPrefs = {};
