@@ -14,13 +14,10 @@
 -keepclassmembers class io.github.xposed.androidspoofer.activity.ActivityWebview$WebAppInterface {
      public *;
 }
--keep class io.github.xposed.androidspoofer.xposed.CheckRemover {
+-keep class io.github.xposed.androidspoofer.xposed.XposedInit {
     *;
 }
--keep class io.github.xposed.androidspoofer.xposed.ResourceEditor {
-    *;
-}
--keepnames class io.github.xposed.androidspoofer.xposed.handlers.*
+#-keepnames class io.github.xposed.androidspoofer.xposed.handlers.*
 
 # Uncomment this to preserve the line number information for
 # debugging stack traces.
