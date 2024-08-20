@@ -6,14 +6,11 @@ plugins {
 android {
     compileSdk 34
 
-
-
     applicationVariants.all { variant ->
         variant.outputs.all {
             outputFileName = "${defaultConfig.applicationId}_${defaultConfig.versionName}_${variant.buildType.name}.apk"
         }
     }
-
 
     signingConfigs {
         release {
