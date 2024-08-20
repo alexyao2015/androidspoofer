@@ -7,6 +7,7 @@ import android.content.Intent
 import android.content.pm.ApplicationInfo
 import android.content.pm.PackageManager
 import android.os.Bundle
+import android.util.Log
 import android.webkit.JavascriptInterface
 import android.webkit.WebResourceRequest
 import android.webkit.WebResourceResponse
@@ -41,7 +42,6 @@ class ActivityWebview : AppCompatActivity() {
         Utils()
     }
 
-    @Deprecated("Deprecated in Java")
     override fun onBackPressed() {
         if (webview.canGoBack()) {
             webview.goBack()
@@ -50,7 +50,6 @@ class ActivityWebview : AppCompatActivity() {
         }
     }
 
-    @SuppressLint("SetJavaScriptEnabled")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.webview_main)
@@ -60,6 +59,7 @@ class ActivityWebview : AppCompatActivity() {
                 .setPositiveButton(R.string.close) { _, _ ->
                     finish()
                 }.setCancelable(false).show()
+            return
         }
 
         val assetLoader = WebViewAssetLoader.Builder()
@@ -211,6 +211,7 @@ class ActivityWebview : AppCompatActivity() {
 
         @JavascriptInterface
         fun getRWPreferences(): String {
+            Log.e("prefs", prefManager.rw.toString())
             return prefManager.rw.toString()
         }
 
