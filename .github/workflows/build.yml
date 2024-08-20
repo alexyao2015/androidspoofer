@@ -25,7 +25,7 @@ jobs:
 
       - name: Build
         run: |
-          mkdir cache
+          mkdir cache || true
 
           ANDROID_STORE_PASSWORD=${{ secrets.ANDROID_STORE_PASSWORD }} \
             ANDROID_KEY_PASSWORD=${{ secrets.ANDROID_KEY_PASSWORD }} \
