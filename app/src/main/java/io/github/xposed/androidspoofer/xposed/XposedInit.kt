@@ -27,8 +27,7 @@ class XposedInit : IXposedHookLoadPackage {
         util.log(tag, "Begin hooking for ${lpparam.packageName}")
         for (conf in prefManager.rw_config_apps) {
             if (conf.type == Utils.ConfigAppsType.ANDROID_ID) {
-                // For now don't filter by package name until its implemented
-//                if (lpparam.packageName !== conf.key) return
+                if (lpparam.packageName !== conf.key) return
                 XposedConstants.SecureSettings.hookGetString(lpparam, Settings.Secure.ANDROID_ID, conf.value)
             }
         }
