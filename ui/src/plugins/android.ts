@@ -42,23 +42,30 @@ try {
   AndroidImpl = Function(`"use strict";return Android`)();
 } catch (_error) {
   console.log("Android interface not found");
-  let RWPrefs: RWPreferences = {
-    appPref: {
-      loggingEnabled: true,
-    },
-    config: {
-      apps: [
-        {
-          key: "my.app.io",
-          value: "my_setting_value",
-          type: AppConfigTypes.android_id,
-        },
-      ],
-    },
-  };
-  let ROPrefs: ROPreferences = {
-    appsList: ["my.app.io", "my.app2.io"],
-  };
+  let RWPrefs: RWPreferences;
+  let ROPrefs: ROPreferences;
+  if (1 == 1) {
+    RWPrefs = {};
+    ROPrefs = {};
+  } else {
+    RWPrefs = {
+      appPref: {
+        loggingEnabled: true,
+      },
+      config: {
+        apps: [
+          {
+            key: "my.app.io",
+            value: "my_setting_value",
+            type: AppConfigTypes.android_id,
+          },
+        ],
+      },
+    };
+    ROPrefs = {
+      appsList: ["my.app.io", "my.app2.io"],
+    };
+  }
 
   AndroidImpl = {
     getROPreferences: () => JSON.stringify(ROPrefs),
@@ -77,11 +84,27 @@ try {
 
 // one way read from app preferences
 export const getROPreferences = (): ROPreferences => {
-  return JSON.parse(AndroidImpl.getROPreferences());
+  const roPref = JSON.parse(AndroidImpl.getROPreferences());
+  if (roPref.appsList === undefined) {
+    roPref.appsList = [];
+  }
+  return roPref;
 };
 
 export const getRWPreferences = (): RWPreferences => {
-  return JSON.parse(AndroidImpl.getRWPreferences());
+  const rwPref = JSON.parse(AndroidImpl.getRWPreferences());
+  // bootstrap an initial config if it doesn't exist
+  if (rwPref.appPref === undefined) {
+    rwPref.appPref = {
+      loggingEnabled: true,
+    };
+  }
+  if (rwPref.config === undefined) {
+    rwPref.config = {
+      apps: [],
+    };
+  }
+  return rwPref;
 };
 
 export const setRWPreferences = (preferences: RWPreferences): void => {

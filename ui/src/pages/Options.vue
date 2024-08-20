@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import { mdiExportVariant, mdiImport } from "@mdi/js";
 import { defineAsyncComponent } from "vue";
-import pref from "../plugins/store";
 import { exportPreferences, importPreferences } from "../plugins/android";
+import pref from "../plugins/store";
 const PreferenceEditor = defineAsyncComponent(
   () => import("../components/PreferenceEditor.vue")
 );
