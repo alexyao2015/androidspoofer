@@ -24,8 +24,6 @@ RUN set -x \
 FROM eclipse-temurin:17
 WORKDIR /build
 
-# Configure a tmp home for unknown users
-ENV HOME=/tmp/builduser
 ENV CACHE_DIR=/build/cache
 ENV GRADLE_USER_HOME=${CACHE_DIR}/gradle
 ENV ANDROID_HOME=${CACHE_DIR}/sdk

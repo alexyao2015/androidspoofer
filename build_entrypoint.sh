@@ -2,6 +2,9 @@
 
 set -eux -o pipefail
 
+# Configure a tmp home for unknown users
+export HOME=/tmp/builduser
+mkdir -p $HOME || true
 # This runs inside the container
 mkdir -p $GRADLE_USER_HOME || true
 mkdir -p $ANDROID_HOME || true
