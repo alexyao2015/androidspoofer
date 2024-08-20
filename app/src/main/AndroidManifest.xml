@@ -11,8 +11,7 @@
         android:label="@string/app_name"
         android:supportsRtl="true"
         android:icon="@mipmap/ic_launcher"
-        android:roundIcon="@mipmap/ic_launcher_round"
-        android:theme="@style/Theme.PixelifyGooglePhotos">
+        android:roundIcon="@mipmap/ic_launcher_round">
 
         <meta-data
             android:name="xposedmodule"

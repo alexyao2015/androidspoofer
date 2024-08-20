@@ -6,9 +6,7 @@
     <!--activity_main.xml-->
     <string name="module_not_enabled">
         \n
-        Looks like the this app module is not enabled.\n
-        Please enable it in LSPosed / EdXposed, then reboot.\n
-        If already enabled, then just reboot. If that does not work, kindly uninstall and reinstall.
+        Looks like the this app module is not enabled.
     </string>
     <string name="close">Close</string>
     <string name="select_a_location">Select a location to save.</string>
