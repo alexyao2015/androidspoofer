@@ -44,7 +44,7 @@ try {
   console.log("Android interface not found");
   let RWPrefs: RWPreferences;
   let ROPrefs: ROPreferences;
-  if (1 == 1) {
+  if (1 == 0) {
     // @ts-ignore For testing only
     RWPrefs = {};
     // @ts-ignore For testing only
@@ -65,7 +65,7 @@ try {
       },
     };
     ROPrefs = {
-      appsList: ["my.app.io", "my.app2.io"],
+      appsList: ["my.app2.io", "my.app.io"],
     };
   }
 
@@ -86,15 +86,16 @@ try {
 
 // one way read from app preferences
 export const getROPreferences = (): ROPreferences => {
-  const roPref = JSON.parse(AndroidImpl.getROPreferences());
+  const roPref = JSON.parse(AndroidImpl.getROPreferences()) as ROPreferences;
   if (roPref.appsList === undefined) {
     roPref.appsList = [];
   }
+  roPref.appsList.sort();
   return roPref;
 };
 
 export const getRWPreferences = (): RWPreferences => {
-  const rwPref = JSON.parse(AndroidImpl.getRWPreferences());
+  const rwPref = JSON.parse(AndroidImpl.getRWPreferences()) as RWPreferences;
   // bootstrap an initial config if it doesn't exist
   if (rwPref.appPref === undefined) {
     rwPref.appPref = {

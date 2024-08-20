@@ -10,6 +10,7 @@ const notNull = (value: any) => !!value || "Required";
 const TypeFilter = Object.values(AppConfigTypes);
 const selectedType = ref(TypeFilter[0]);
 const searchField = ref("");
+const searchFieldAppsList = ref("");
 
 const selectedConfigs = () => {
   let app_configs = pref.rwPreferences.config.apps;
@@ -18,14 +19,25 @@ const selectedConfigs = () => {
       (config) => config.type === selectedType.value
     );
   }
-  if (searchField.value !== "") {
+  if (searchField.value !== null) {
     app_configs = app_configs.filter(
       (config) =>
         config.key.includes(searchField.value) ||
-        config.value.includes(searchField.value)
+        config.value.includes(searchField.value) ||
+        config.value === ""
     );
   }
   return app_configs;
+};
+
+const filteredAppList = () => {
+  const apps_list = pref.roPreferences.appsList;
+  if (searchFieldAppsList.value === null) {
+    return apps_list;
+  }
+  return apps_list.filter((app) => {
+    return app.includes(searchFieldAppsList.value);
+  });
 };
 
 const addConfig = () => {
@@ -67,6 +79,13 @@ const removeConfig = (index: number) => {
       hide-details="auto"
       label="Search"
     ></v-text-field>
+    <v-list-item class="d-flex flex-column" min-height="10px"></v-list-item>
+    <v-text-field
+      v-model="searchFieldAppsList"
+      clearable
+      hide-details="auto"
+      label="Search app list"
+    ></v-text-field>
     <v-row>
       <v-col>
         <v-list-item class="d-flex flex-column" min-height="10px"></v-list-item>
@@ -87,7 +106,7 @@ const removeConfig = (index: number) => {
             v-model="config.key"
             label="App ID"
             hide-details="auto"
-            :items="pref.roPreferences.appsList"
+            :items="filteredAppList()"
           ></v-select>
           <v-list-item
             class="d-flex flex-column"
@@ -95,7 +114,6 @@ const removeConfig = (index: number) => {
           ></v-list-item>
           <v-text-field
             v-model="config.value"
-            :rules="[notNull]"
             clearable
             hide-details="auto"
             label="Replacement Value"
