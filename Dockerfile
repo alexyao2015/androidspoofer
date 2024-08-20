@@ -1,10 +1,13 @@
 FROM node:20 AS ui-build
 
 WORKDIR /build
+COPY ui/package.json ui/yarn.lock .
+RUN set -x \
+    && yarn
+
 COPY ui .
 RUN set -x \
     && mkdir -p /app/src/main/assets/webview \
-    && yarn \
     && yarn build
 
 FROM alpine AS sdkmanager
@@ -39,5 +42,6 @@ RUN --mount=type=bind,target=/tmp/sdk,source=/sdk,from=sdkmanager,rw \
 COPY --from=ui-build /app /ui/app
 COPY build_entrypoint.sh /
 # COPY . .
+# RUN chmod -R 777 /build
 
 ENTRYPOINT ["/build_entrypoint.sh"]

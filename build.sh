@@ -10,8 +10,9 @@ docker build \
 
 docker run \
   --name builder \
-  -e ANDROID_STORE_PASSWORD=${ANDROID_STORE_PASSWORD} \
-  -e ANDROID_KEY_PASSWORD=${ANDROID_KEY_PASSWORD} \
+  -e ANDROID_STORE_PASSWORD="${ANDROID_STORE_PASSWORD:-}" \
+  -e ANDROID_KEY_PASSWORD="${ANDROID_KEY_PASSWORD:-}" \
+  --user $UID:$(id -g) \
   -v ${PWD}:/build \
   builder
 # docker cp builder:/build/output .
