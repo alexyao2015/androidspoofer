@@ -2,7 +2,12 @@
 
 set -eux -o pipefail
 
-docker build -t builder --load .
+docker build \
+  -t builder \
+  --load \
+  ${DOCKER_BUILD_ARGS:-} \
+  .
+
 docker run \
   --name builder \
   -e ANDROID_STORE_PASSWORD=${ANDROID_STORE_PASSWORD} \
