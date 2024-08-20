@@ -17,7 +17,7 @@
 -keep class io.github.xposed.androidspoofer.xposed.XposedInit {
     *;
 }
-#-keepnames class io.github.xposed.androidspoofer.xposed.handlers.*
+-keepnames class io.github.xposed.androidspoofer.xposed.handlers.*
 
 # Uncomment this to preserve the line number information for
 # debugging stack traces.
