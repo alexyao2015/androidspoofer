@@ -1,16 +1,15 @@
-import pinia from "./pinia";
 import { defineStore } from "pinia";
+import { IROPreferences, IRWPreferences } from "../util/types";
 import {
-  RWPreferences,
+  getROPreferences,
   getRWPreferences,
   setRWPreferences,
-  getROPreferences,
-  ROPreferences,
 } from "./android";
+import pinia from "./pinia";
 
 interface PreferencesStore {
-  rwPreferences: RWPreferences;
-  roPreferences: ROPreferences;
+  rwPreferences: IRWPreferences;
+  roPreferences: IROPreferences;
 }
 
 const usePreferences = defineStore("page", {

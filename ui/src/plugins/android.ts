@@ -1,49 +1,19 @@
-export enum AppConfigTypes {
-  android_id = "android_id",
-  any = "any",
-}
-export interface AppsConfig {
-  key: string;
-  value: string;
-  type: AppConfigTypes;
-}
+import { AppConfigType } from "../util/app_config";
+import {
+  IAndroidInterface,
+  IROPreferences,
+  IRWPreferences,
+} from "../util/types";
 
-export interface AppConfig {
-  apps: Array<AppsConfig>;
-}
-
-export interface AppPreferences {
-  loggingEnabled: boolean;
-}
-
-// ro preferences
-export interface ROPreferences {
-  appsList: Array<string>;
-}
-
-// rw preferences
-export interface RWPreferences {
-  appPref: AppPreferences;
-  config: AppConfig;
-}
-
-interface AndroidInterface {
-  getROPreferences(): string;
-  getRWPreferences(): string;
-  setRWPreferences(preferences: string): void;
-  exportPreferences(): void;
-  importPreferences(): boolean;
-}
-
-let AndroidImpl: AndroidInterface;
+let AndroidImpl: IAndroidInterface;
 
 try {
   // grab from global variable
   AndroidImpl = Function(`"use strict";return Android`)();
 } catch (_error) {
   console.log("Android interface not found");
-  let RWPrefs: RWPreferences;
-  let ROPrefs: ROPreferences;
+  let RWPrefs: IRWPreferences;
+  let ROPrefs: IROPreferences;
   // @ts-ignore For testing only
   if (1 == 0) {
     // @ts-ignore For testing only
@@ -60,7 +30,7 @@ try {
           {
             key: "my.app.io",
             value: "my_setting_value",
-            type: AppConfigTypes.android_id,
+            type: AppConfigType.android_id,
           },
         ],
       },
@@ -86,8 +56,8 @@ try {
 }
 
 // one way read from app preferences
-export const getROPreferences = (): ROPreferences => {
-  const roPref = JSON.parse(AndroidImpl.getROPreferences()) as ROPreferences;
+export const getROPreferences = (): IROPreferences => {
+  const roPref = JSON.parse(AndroidImpl.getROPreferences()) as IROPreferences;
   if (roPref.appsList === undefined) {
     roPref.appsList = [];
   }
@@ -95,8 +65,8 @@ export const getROPreferences = (): ROPreferences => {
   return roPref;
 };
 
-export const getRWPreferences = (): RWPreferences => {
-  const rwPref = JSON.parse(AndroidImpl.getRWPreferences()) as RWPreferences;
+export const getRWPreferences = (): IRWPreferences => {
+  const rwPref = JSON.parse(AndroidImpl.getRWPreferences()) as IRWPreferences;
   // bootstrap an initial config if it doesn't exist
   if (rwPref.appPref === undefined) {
     rwPref.appPref = {
@@ -111,7 +81,7 @@ export const getRWPreferences = (): RWPreferences => {
   return rwPref;
 };
 
-export const setRWPreferences = (preferences: RWPreferences): void => {
+export const setRWPreferences = (preferences: IRWPreferences): void => {
   AndroidImpl.setRWPreferences(JSON.stringify(preferences));
 };
 

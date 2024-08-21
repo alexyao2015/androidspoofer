@@ -1,21 +1,22 @@
 <script setup lang="ts">
+import { mdiReload } from "@mdi/js";
 import { defineAsyncComponent, ref } from "vue";
-import { AppConfigTypes } from "../plugins/android";
 import pref from "../plugins/store";
+import { AppConfigType, appConfigTypeMetadata } from "../util/app_config";
+import { IAppsConfig } from "../util/types";
 const PreferenceEditor = defineAsyncComponent(
   () => import("../components/PreferenceEditor.vue")
 );
 
-const TypeFilter = Object.values(AppConfigTypes);
-const selectedType = ref(TypeFilter[0]);
+const selectedType = ref(Object.values(AppConfigType));
 const searchField = ref("");
 const searchFieldAppsList = ref("");
 
 const selectedConfigs = () => {
   let app_configs = pref.rwPreferences.config.apps;
-  if (selectedType.value !== AppConfigTypes.any) {
-    app_configs = app_configs.filter(
-      (config) => config.type === selectedType.value
+  if (selectedType.value.length > 1) {
+    app_configs = app_configs.filter((config) =>
+      selectedType.value.includes(config.type)
     );
   }
   if (searchField.value !== null) {
@@ -44,9 +45,9 @@ const addConfig = () => {
   const selected_configs = selectedConfigs();
   if (selected_configs.length === 0) {
     const new_type =
-      selectedType.value !== AppConfigTypes.any
-        ? selectedType.value
-        : AppConfigTypes.android_id;
+      selectedType.value.length > 1
+        ? selectedType.value[0]
+        : AppConfigType.android_id;
     pref.rwPreferences.config.apps.push({
       key: "",
       value: "",
@@ -60,15 +61,17 @@ const addConfig = () => {
   pref.rwPreferences.config.apps.push(config_copy);
 };
 
-const removeConfig = (index: number) => {
-  const selected_configs = selectedConfigs();
-  const remove_config = selected_configs[index];
-  const idx_to_remove = pref.rwPreferences.config.apps.indexOf(remove_config);
+const removeConfig = (config: IAppsConfig) => {
+  const idx_to_remove = pref.rwPreferences.config.apps.indexOf(config);
   pref.rwPreferences.config.apps.splice(idx_to_remove, 1);
 };
 
+const regenerateConfigValue = (config: IAppsConfig) => {
+  config.value = appConfigTypeMetadata[config.type].generate();
+};
+
 const notNull = (value: any) => !!value || "Required";
-const noDuplicates = (value: any) => {
+const noAppDuplicates = (value: any) => {
   const duplicates = pref.rwPreferences.config.apps.filter(
     (config) => config.key === value
   );
@@ -81,7 +84,11 @@ const noDuplicates = (value: any) => {
     <v-select
       v-model="selectedType"
       label="Type"
-      :items="TypeFilter"
+      multiple
+      clearable
+      :items="Object.values(appConfigTypeMetadata)"
+      item-title="friendly"
+      item-value="key"
     ></v-select>
     <v-text-field
       v-model="searchField"
@@ -105,17 +112,10 @@ const noDuplicates = (value: any) => {
     <v-row v-for="(config, index) in selectedConfigs()">
       <v-container class="pa-0 fill-height">
         <v-col cols="9" class="pb-0">
-          <!-- <v-text-field
-            v-model="config.key"
-            :rules="[notNull]"
-            clearable
-            hide-details="auto"
-            label="App ID"
-          ></v-text-field> -->
           <v-select
             v-model="config.key"
             validate-on="eager"
-            :rules="[noDuplicates, notNull]"
+            :rules="[noAppDuplicates, notNull]"
             label="App ID"
             hide-details="auto"
             :items="filteredAppList()"
@@ -132,7 +132,7 @@ const noDuplicates = (value: any) => {
             :rules="[notNull]"
             label="Replacement Value"
           ></v-text-field>
-          <div v-if="selectedType === AppConfigTypes.any">
+          <div v-if="selectedType.length !== 1">
             <v-list-item
               class="d-flex flex-column"
               min-height="10px"
@@ -141,29 +141,26 @@ const noDuplicates = (value: any) => {
               v-model="config.type"
               label="Type"
               hide-details="auto"
-              :items="TypeFilter.filter((type) => type !== AppConfigTypes.any) as Array<AppConfigTypes>"
+              :items="Object.values(appConfigTypeMetadata)"
+              item-title="friendly"
+              item-value="key"
             ></v-select>
           </div>
         </v-col>
-        <v-col cols="3">
-          <v-btn @click="removeConfig(index)" style="height: 56px">X</v-btn>
+        <v-col cols="3" class="pb-0">
+          <v-btn @click="removeConfig(config)" style="height: 56px">X</v-btn>
+          <div>
+            <v-list-item
+              class="d-flex flex-column"
+              min-height="10px"
+            ></v-list-item>
+            <v-btn @click="regenerateConfigValue(config)" style="height: 56px">
+              <v-icon :icon="mdiReload"> </v-icon>
+            </v-btn>
+          </div>
         </v-col>
         <v-list-item class="d-flex flex-column" min-height="10px"></v-list-item>
       </v-container>
-
-      <!-- <v-row>
-        <v-col>
-          <v-list-item
-            class="d-flex flex-column"
-            min-height="10px"
-          ></v-list-item>
-          <v-divider />
-          <v-list-item
-            class="d-flex flex-column"
-            min-height="20px"
-          ></v-list-item>
-        </v-col>
-      </v-row> -->
     </v-row>
     <v-row>
       <v-col>
