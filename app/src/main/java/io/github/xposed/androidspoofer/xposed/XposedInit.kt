@@ -24,11 +24,15 @@ class XposedInit : IXposedHookLoadPackage {
     }
 
     override fun handleLoadPackage(lpparam: XC_LoadPackage.LoadPackageParam) {
-        util.log(tag, "Begin hooking for ${lpparam.packageName}")
         for (conf in prefManager.rw_config_apps) {
             if (conf.type == Utils.ConfigAppsType.ANDROID_ID) {
-                if (lpparam.packageName !== conf.key) return
-                XposedConstants.SecureSettings.hookGetString(lpparam, Settings.Secure.ANDROID_ID, conf.value)
+                if (!lpparam.packageName.equals(conf.key)) continue
+                XposedConstants.SecureSettings.hookGetString(
+                    lpparam,
+                    Settings.Secure.ANDROID_ID,
+                    conf.value
+                )
+                util.log(tag, "${conf.type} hooked in ${lpparam.packageName}")
             }
         }
     }

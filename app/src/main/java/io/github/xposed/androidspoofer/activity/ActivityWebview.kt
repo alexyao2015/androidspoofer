@@ -1,13 +1,11 @@
 package io.github.xposed.androidspoofer.activity
 
-import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.content.pm.ApplicationInfo
 import android.content.pm.PackageManager
 import android.os.Bundle
-import android.util.Log
 import android.webkit.JavascriptInterface
 import android.webkit.WebResourceRequest
 import android.webkit.WebResourceResponse
@@ -211,7 +209,6 @@ class ActivityWebview : AppCompatActivity() {
 
         @JavascriptInterface
         fun getRWPreferences(): String {
-            Log.e("prefs", prefManager.rw.toString())
             return prefManager.rw.toString()
         }
 

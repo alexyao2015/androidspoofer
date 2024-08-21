@@ -1,6 +1,7 @@
 package io.github.xposed.androidspoofer
 
 import android.content.SharedPreferences
+import android.util.Log
 import io.github.xposed.androidspoofer.Constants.PREF_JSON_RO_APPSLIST
 import io.github.xposed.androidspoofer.Constants.PREF_JSON_RW_APPPREF
 import io.github.xposed.androidspoofer.Constants.PREF_JSON_RW_APPPREF_LOGGING_ENABLED
@@ -14,6 +15,7 @@ import org.json.JSONException
 import org.json.JSONObject
 
 class PreferencesManager(private val pref: SharedPreferences) {
+    private val tag = this::class.simpleName
     private val utils by lazy {
         Utils()
     }
@@ -34,8 +36,9 @@ class PreferencesManager(private val pref: SharedPreferences) {
     var ro_applist: JSONArray
         get() {
             try {
-                return rw.getJSONArray(PREF_JSON_RO_APPSLIST)
+                return ro.getJSONArray(PREF_JSON_RO_APPSLIST)
             } catch (e: JSONException) {
+                Log.e(tag, "Unable to retrieve ro_applist. ro: $ro")
                 return JSONArray("[]")
             }
         }
@@ -59,7 +62,8 @@ class PreferencesManager(private val pref: SharedPreferences) {
         get() {
             try {
                 return rw.getJSONObject(PREF_JSON_RW_APPPREF)
-            }  catch (e: JSONException) {
+            } catch (e: JSONException) {
+                Log.e(tag, "Unable to retrieve rw_apppref. rw: $rw")
                 return JSONObject("{}")
             }
         }
@@ -69,6 +73,7 @@ class PreferencesManager(private val pref: SharedPreferences) {
             try {
                 return rw_apppref.getBoolean(PREF_JSON_RW_APPPREF_LOGGING_ENABLED)
             } catch (e: JSONException) {
+                Log.e(tag, "Unable to retrieve rw_apppref_logging_enabled. rw_apppref: $rw_apppref")
                 return false
             }
         }
@@ -78,6 +83,7 @@ class PreferencesManager(private val pref: SharedPreferences) {
             try {
                 return rw.getJSONObject(PREF_JSON_RW_CONFIG)
             } catch (e: JSONException) {
+                Log.e(tag, "Unable to retrieve rw_config. rw: $rw")
                 return JSONObject("{}")
             }
         }
@@ -91,12 +97,13 @@ class PreferencesManager(private val pref: SharedPreferences) {
             try {
                 savedPref = rw_config.getJSONArray(PREF_JSON_RW_CONFIG_APPS)
             } catch (e: JSONException) {
+                Log.e(tag, "Unable to retrieve rw_config_apps. rw_config: $rw_config")
                 return emptyList()
             }
-            val confs = emptyList<Utils.AppConfig>()
+            val confs = mutableListOf<Utils.AppConfig>()
             for (i in 0 until savedPref.length()) {
                 val conf = savedPref.getJSONObject(i)
-                confs.plus(
+                confs.add(
                     Utils.AppConfig(
                         conf.getString(PREF_JSON_RW_CONFIG_APPS_KEY),
                         conf.getString(PREF_JSON_RW_CONFIG_APPS_VALUE),

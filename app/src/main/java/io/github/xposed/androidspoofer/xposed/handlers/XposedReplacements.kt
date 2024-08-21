@@ -23,6 +23,6 @@ class SecureGetString(
 
         val original = param.result
         param.result = newValue
-        util.log(tag, "Changed $replacementKey from $original -> $newValue")
+        util.log(tag, "${lpparam.packageName}: Changed $replacementKey from $original -> $newValue")
     }
 }

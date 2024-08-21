@@ -4,8 +4,6 @@ import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
 import android.net.Uri
-import android.provider.Settings
-import android.widget.Toast
 import io.github.xposed.androidspoofer.Constants.PREF_JSON_RO
 import io.github.xposed.androidspoofer.Constants.PREF_JSON_RW
 import io.github.xposed.androidspoofer.Constants.PREF_JSON_RW_CONFIG_APPS_TYPE_ANDROID_ID
@@ -71,6 +69,7 @@ class Utils {
     enum class ConfigAppsType {
         ANDROID_ID
     }
+
     data class AppConfig(val key: String, val value: String, val type: ConfigAppsType)
 
     fun stringToAppsType(typeString: String): ConfigAppsType {
