@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { mdiReload } from "@mdi/js";
-import { defineAsyncComponent, ref } from "vue";
+import { defineAsyncComponent, Ref, ref } from "vue";
 import pref from "../plugins/store";
 import { AppConfigType, appConfigTypeMetadata } from "../util/app_config";
 import { IAppsConfig } from "../util/types";
@@ -9,8 +9,8 @@ const PreferenceEditor = defineAsyncComponent(
 );
 
 const selectedType = ref(Object.values(AppConfigType));
-const searchField = ref(null);
-const searchFieldAppsList = ref(null);
+const searchField: Ref<null | string> = ref(null);
+const searchFieldAppsList: Ref<null | string> = ref(null);
 
 const selectedConfigs = () => {
   let app_configs = pref.rwPreferences.config.apps;
@@ -19,12 +19,13 @@ const selectedConfigs = () => {
       selectedType.value.includes(config.type)
     );
   }
-  if (searchField.value !== null) {
+  const search = searchField.value;
+  if (search !== null) {
     app_configs = app_configs.filter(
       (config) =>
         // These properties may be null if the form is partially cleared
-        config.key?.toLowerCase().includes(searchField.value.toLowerCase()) ||
-        config.value?.toLowerCase().includes(searchField.value.toLowerCase())
+        config.key?.toLowerCase().includes(search.toLowerCase()) ||
+        config.value?.toLowerCase().includes(search.toLowerCase())
     );
   }
   return app_configs;
