@@ -1,6 +1,6 @@
-import "vuetify/styles";
 import { createVuetify } from "vuetify";
 import { aliases, mdi } from "vuetify/iconsets/mdi-svg";
+import "vuetify/styles";
 
 export default createVuetify({
   icons: {
@@ -11,6 +11,8 @@ export default createVuetify({
     },
   },
   theme: {
-    defaultTheme: "dark",
+    defaultTheme: window.matchMedia("(prefers-color-scheme: light)").matches
+      ? "light"
+      : "dark",
   },
 });
