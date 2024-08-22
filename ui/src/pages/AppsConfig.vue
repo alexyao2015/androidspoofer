@@ -9,8 +9,8 @@ const PreferenceEditor = defineAsyncComponent(
 );
 
 const selectedType = ref(Object.values(AppConfigType));
-const searchField = ref("");
-const searchFieldAppsList = ref("");
+const searchField = ref(null);
+const searchFieldAppsList = ref(null);
 
 const selectedConfigs = () => {
   let app_configs = pref.rwPreferences.config.apps;
@@ -22,10 +22,9 @@ const selectedConfigs = () => {
   if (searchField.value !== null) {
     app_configs = app_configs.filter(
       (config) =>
-        config.key.toLowerCase().includes(searchField.value.toLowerCase()) ||
-        config.value.toLowerCase().includes(searchField.value.toLowerCase()) ||
-        config.key === "" ||
-        config.value === ""
+        // These properties may be null if the form is partially cleared
+        config.key?.toLowerCase().includes(searchField.value.toLowerCase()) ||
+        config.value?.toLowerCase().includes(searchField.value.toLowerCase())
     );
   }
   return app_configs;
@@ -80,35 +79,35 @@ const noAppDuplicates = (value: any) => {
 </script>
 
 <template>
+  <v-select
+    v-model="selectedType"
+    label="Type"
+    multiple
+    clearable
+    :items="Object.values(appConfigTypeMetadata)"
+    item-title="friendly"
+    item-value="key"
+  ></v-select>
+  <v-text-field
+    v-model="searchField"
+    clearable
+    hide-details="auto"
+    label="Search"
+  ></v-text-field>
+  <v-list-item class="d-flex flex-column" min-height="10px"></v-list-item>
+  <v-text-field
+    v-model="searchFieldAppsList"
+    clearable
+    hide-details="auto"
+    label="Search app list"
+  ></v-text-field>
+  <v-row>
+    <v-col>
+      <v-list-item class="d-flex flex-column" min-height="10px"></v-list-item>
+      <v-divider />
+    </v-col>
+  </v-row>
   <PreferenceEditor>
-    <v-select
-      v-model="selectedType"
-      label="Type"
-      multiple
-      clearable
-      :items="Object.values(appConfigTypeMetadata)"
-      item-title="friendly"
-      item-value="key"
-    ></v-select>
-    <v-text-field
-      v-model="searchField"
-      clearable
-      hide-details="auto"
-      label="Search"
-    ></v-text-field>
-    <v-list-item class="d-flex flex-column" min-height="10px"></v-list-item>
-    <v-text-field
-      v-model="searchFieldAppsList"
-      clearable
-      hide-details="auto"
-      label="Search app list"
-    ></v-text-field>
-    <v-row>
-      <v-col>
-        <v-list-item class="d-flex flex-column" min-height="10px"></v-list-item>
-        <v-divider />
-      </v-col>
-    </v-row>
     <v-row v-for="(config, index) in selectedConfigs()">
       <v-container class="pa-0 fill-height">
         <v-col cols="9" class="pb-0">
@@ -165,7 +164,12 @@ const noAppDuplicates = (value: any) => {
     <v-row>
       <v-col>
         <v-col class="text-right">
-          <v-btn @click="addConfig()" style="height: 56px">Add Config</v-btn>
+          <v-btn
+            v-if="searchField === null"
+            @click="addConfig()"
+            style="height: 56px"
+            >Add Config</v-btn
+          >
         </v-col>
       </v-col>
     </v-row>
