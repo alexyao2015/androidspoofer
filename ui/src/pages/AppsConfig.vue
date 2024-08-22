@@ -33,11 +33,11 @@ const selectedConfigs = () => {
 
 const filteredAppList = () => {
   const apps_list = pref.roPreferences.appsList;
-  if (searchFieldAppsList.value === null) {
-    return apps_list;
-  }
+  const search = searchFieldAppsList.value;
+  if (search === null) return apps_list;
+
   return apps_list.filter((app) => {
-    return app.toLowerCase().includes(searchFieldAppsList.value.toLowerCase());
+    return app.toLowerCase().includes(search.toLowerCase());
   });
 };
 
