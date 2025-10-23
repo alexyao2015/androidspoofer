@@ -14,14 +14,14 @@ import pref from "../plugins/store";
       <v-card-text>
         <v-row>
           <v-col cols="12">
-            <v-text-field label="Widevine ID" :model-value="pref.roPreferences.mediaDrmUniqueId.widevineId" readonly
-              variant="outlined" density="comfortable" class="mb-3">
-            </v-text-field>
+            <v-textarea label="Widevine ID" :model-value="pref.roPreferences.mediaDrmUniqueId.widevineId" readonly
+              variant="outlined" density="comfortable" class="mb-3" rows="3" auto-grow>
+            </v-textarea>
           </v-col>
           <v-col cols="12">
-            <v-text-field label="PlayReady ID" :model-value="pref.roPreferences.mediaDrmUniqueId.playReadyId" readonly
-              variant="outlined" density="comfortable">
-            </v-text-field>
+            <v-textarea label="PlayReady ID" :model-value="pref.roPreferences.mediaDrmUniqueId.playReadyId" readonly
+              variant="outlined" density="comfortable" rows="3" auto-grow>
+            </v-textarea>
           </v-col>
         </v-row>
       </v-card-text>

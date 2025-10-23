@@ -183,12 +183,31 @@ class ActivityWebview : AppCompatActivity() {
         }
 
         private fun updateMediaDrmUniqueId() {
-            val widevine_id =
-                MediaDrm(WIDEVINE_UUID).getPropertyByteArray(MediaDrm.PROPERTY_DEVICE_UNIQUE_ID)
-            val playready_id =
-                MediaDrm(PLAYREADY_UUID).getPropertyByteArray(MediaDrm.PROPERTY_DEVICE_UNIQUE_ID)
-            prefManager.ro_media_drm_unique_id_widevine = Utils.bytesToHex(widevine_id)
-            prefManager.ro_media_drm_unique_id_playready = Utils.bytesToHex(playready_id)
+            try {
+                val widevineMediaDrm = MediaDrm(WIDEVINE_UUID)
+                try {
+                    val widevine_id = widevineMediaDrm.getPropertyByteArray(MediaDrm.PROPERTY_DEVICE_UNIQUE_ID)
+                    prefManager.ro_media_drm_unique_id_widevine = Utils.bytesToHex(widevine_id)
+                } finally {
+                    widevineMediaDrm.close()
+                }
+            } catch (e: Exception) {
+                e.printStackTrace()
+                prefManager.ro_media_drm_unique_id_widevine = ""
+            }
+
+            try {
+                val playreadyMediaDrm = MediaDrm(PLAYREADY_UUID)
+                try {
+                    val playready_id = playreadyMediaDrm.getPropertyByteArray(MediaDrm.PROPERTY_DEVICE_UNIQUE_ID)
+                    prefManager.ro_media_drm_unique_id_playready = Utils.bytesToHex(playready_id)
+                } finally {
+                    playreadyMediaDrm.close()
+                }
+            } catch (e: Exception) {
+                e.printStackTrace()
+                prefManager.ro_media_drm_unique_id_playready = ""
+            }
         }
 
         @JavascriptInterface
