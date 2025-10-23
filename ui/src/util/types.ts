@@ -7,6 +7,7 @@ export interface IAppConfigTypeMeta {
 }
 export interface IAppConfigTypeMetadata {
   android_id: IAppConfigTypeMeta;
+  drm_id: IAppConfigTypeMeta;
 }
 export interface IAppsConfig {
   key: string;
