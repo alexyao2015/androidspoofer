@@ -1,9 +1,16 @@
 package io.github.xposed.androidspoofer
 
+import java.util.UUID
+
+
+
 object Constants {
     val CONF_EXPORT_NAME = "spoofer_conf.json"
 
     val SHARED_PREF_FILE_NAME = "prefs"
+
+    var WIDEVINE_UUID = UUID(-0x121074568629b532L, -0x5c37d8232ae2de13L)
+    var PLAYREADY_UUID = UUID(-2129748144642739255L, 8654423357094679310L);
 
     // full spec in ui/src/plugins/android.ts
     val PREF_JSON_RW = "rw"
@@ -21,4 +28,7 @@ object Constants {
     // ro prefs
     val PREF_JSON_RO = "ro"
     val PREF_JSON_RO_APPSLIST = "appsList"
+    val PREF_JSON_RO_MEDIA_DRM_UNIQUE_ID = "mediaDrmUniqueId"
+    val PREF_JSON_RO_MEDIA_DRM_UNIQUE_ID_WIDEVINE = "widevineId"
+    val PREF_JSON_RO_MEDIA_DRM_UNIQUE_ID_PLAYREADY = "playReadyId"
 }

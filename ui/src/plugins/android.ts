@@ -29,14 +29,23 @@ try {
         apps: [
           {
             key: "my.app.io",
-            value: "my_setting_value",
+            value: "android_setting_value",
             type: AppConfigType.android_id,
+          },
+          {
+            key: "my.app.io",
+            value: "drm_setting_value",
+            type: AppConfigType.drm_id,
           },
         ],
       },
     };
     ROPrefs = {
       appsList: ["my.app2.io", "my.app.io"],
+      mediaDrmUniqueId: {
+        widevineId: "sample_widevine_id_value",
+        playReadyId: "sample_playready_id_value",
+      },
     };
   }
 
@@ -62,6 +71,12 @@ export const getROPreferences = (): IROPreferences => {
     roPref.appsList = [];
   }
   roPref.appsList.sort();
+  if (roPref.mediaDrmUniqueId === undefined) {
+    roPref.mediaDrmUniqueId = {
+      widevineId: "unknown",
+      playReadyId: "unknown",
+    };
+  }
   return roPref;
 };
 

@@ -5,6 +5,7 @@ import android.content.Context
 import android.content.Intent
 import android.content.pm.ApplicationInfo
 import android.content.pm.PackageManager
+import android.media.MediaDrm
 import android.os.Bundle
 import android.webkit.JavascriptInterface
 import android.webkit.WebResourceRequest
@@ -19,6 +20,8 @@ import androidx.webkit.WebViewAssetLoader.AssetsPathHandler
 import androidx.webkit.WebViewClientCompat
 import io.github.xposed.androidspoofer.Constants
 import io.github.xposed.androidspoofer.Constants.CONF_EXPORT_NAME
+import io.github.xposed.androidspoofer.Constants.PLAYREADY_UUID
+import io.github.xposed.androidspoofer.Constants.WIDEVINE_UUID
 import io.github.xposed.androidspoofer.PreferencesManager
 import io.github.xposed.androidspoofer.R
 import io.github.xposed.androidspoofer.Utils
@@ -34,10 +37,6 @@ class ActivityWebview : AppCompatActivity() {
         } catch (_: Exception) {
             null
         }
-    }
-
-    private val utils by lazy {
-        Utils()
     }
 
     override fun onBackPressed() {
@@ -101,7 +100,7 @@ class ActivityWebview : AppCompatActivity() {
         registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
             try {
                 if (it.resultCode == Activity.RESULT_OK) {
-                    utils.writeConfigFile(this, it.data!!.data!!, pref!!)
+                    Utils.writeConfigFile(this, it.data!!.data!!, pref!!)
                     Toast.makeText(this, R.string.export_complete, Toast.LENGTH_SHORT).show()
                 }
             } catch (e: Exception) {
@@ -140,7 +139,7 @@ class ActivityWebview : AppCompatActivity() {
         registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
             try {
                 if (it.resultCode == Activity.RESULT_OK) {
-                    utils.readConfigFile(this, it.data!!.data!!, pref!!)
+                    Utils.readConfigFile(this, it.data!!.data!!, pref!!)
                     Toast.makeText(this, R.string.import_complete, Toast.LENGTH_SHORT).show()
                     restartActivity()
                 }
@@ -173,18 +172,23 @@ class ActivityWebview : AppCompatActivity() {
 
         private fun updateAppList() {
             val appInfos: List<ApplicationInfo>
-            if (android.os.Build.VERSION.SDK_INT >= 33) {
-                val flags =
-                    PackageManager.ApplicationInfoFlags.of(PackageManager.GET_META_DATA.toLong())
-                appInfos = pm.getInstalledApplications(flags)
-            } else {
-                appInfos = pm.getInstalledApplications(PackageManager.GET_META_DATA)
-            }
+            val flags =
+                PackageManager.ApplicationInfoFlags.of(PackageManager.GET_META_DATA.toLong())
+            appInfos = pm.getInstalledApplications(flags)
             prefManager.ro_applist = JSONArray().apply {
                 for (appInfo in appInfos) {
                     put(appInfo.packageName)
                 }
             }
+        }
+
+        private fun updateMediaDrmUniqueId() {
+            val widevine_id =
+                MediaDrm(WIDEVINE_UUID).getPropertyByteArray(MediaDrm.PROPERTY_DEVICE_UNIQUE_ID)
+            val playready_id =
+                MediaDrm(PLAYREADY_UUID).getPropertyByteArray(MediaDrm.PROPERTY_DEVICE_UNIQUE_ID)
+            prefManager.ro_media_drm_unique_id_widevine = Utils.bytesToHex(widevine_id)
+            prefManager.ro_media_drm_unique_id_playready = Utils.bytesToHex(playready_id)
         }
 
         @JavascriptInterface

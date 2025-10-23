@@ -4,7 +4,7 @@ plugins {
 }
 
 android {
-    compileSdk 34
+    compileSdk 36
 
     applicationVariants.all { variant ->
         variant.outputs.all {
@@ -23,8 +23,8 @@ android {
 
     defaultConfig {
         applicationId "io.github.xposed.androidspoofer"
-        minSdk 24
-        targetSdk 34
+        minSdk 34
+        targetSdk 36
         versionCode 1
         versionName "1.0.0"
     }

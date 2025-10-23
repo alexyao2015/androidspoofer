@@ -25,6 +25,10 @@ export interface IAppPreferences {
 // ro preferences
 export interface IROPreferences {
   appsList: Array<string>;
+  mediaDrmUniqueId: {
+    widevineId: string;
+    playReadyId: string;
+  };
 }
 
 // rw preferences

@@ -11,12 +11,13 @@ import org.json.JSONObject
 import java.io.BufferedWriter
 import java.io.ByteArrayOutputStream
 import java.io.OutputStreamWriter
+import java.util.HexFormat
 
 
 /**
  * Utilities class for various functions.
  */
-class Utils {
+object Utils {
     /**
      * Write all keys of shared preference in a file as a JSON string.
      *
@@ -67,7 +68,8 @@ class Utils {
     }
 
     enum class ConfigAppsType {
-        ANDROID_ID
+        ANDROID_ID,
+        DRM_ID
     }
 
     data class AppConfig(val key: String, val value: String, val type: ConfigAppsType)
@@ -78,5 +80,14 @@ class Utils {
         }
         throw UnsupportedOperationException("Unable to decode app type")
     }
+
+    fun bytesToHex(buf: ByteArray): String {
+        return buf.joinToString("") { "%02x".format(it) }
+    }
+
+    fun hexToBytes(hex: String): ByteArray {
+        return HexFormat.of().parseHex(hex)
+    }
+
 
 }

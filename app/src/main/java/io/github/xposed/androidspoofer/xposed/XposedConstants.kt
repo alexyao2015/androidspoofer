@@ -1,9 +1,11 @@
 package io.github.xposed.androidspoofer.xposed
 
 import android.content.ContentResolver
+import android.media.MediaDrm
 import android.provider.Settings
 import de.robv.android.xposed.XposedHelpers
 import de.robv.android.xposed.callbacks.XC_LoadPackage.LoadPackageParam
+import io.github.xposed.androidspoofer.xposed.handlers.MediaDrmHook
 import io.github.xposed.androidspoofer.xposed.handlers.SecureGetString
 
 
@@ -25,5 +27,20 @@ object XposedConstants {
             )
         }
     }
+    object MediaDrmHook {
+        val CLASS = MediaDrm::class.java
 
+        object FUN {
+            const val getPropertyByteArray = "getPropertyByteArray"
+        }
+
+        fun hookGetPropertyByteArray(lpparam: LoadPackageParam, replacementString: String, newValue: String) {
+            XposedHelpers.findAndHookMethod(
+                CLASS,
+                FUN.getPropertyByteArray,
+                String::class.java,
+                MediaDrmHook(lpparam, replacementString, newValue)
+            )
+        }
+    }
 }

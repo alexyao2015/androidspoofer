@@ -3,6 +3,9 @@ package io.github.xposed.androidspoofer
 import android.content.SharedPreferences
 import android.util.Log
 import io.github.xposed.androidspoofer.Constants.PREF_JSON_RO_APPSLIST
+import io.github.xposed.androidspoofer.Constants.PREF_JSON_RO_MEDIA_DRM_UNIQUE_ID
+import io.github.xposed.androidspoofer.Constants.PREF_JSON_RO_MEDIA_DRM_UNIQUE_ID_PLAYREADY
+import io.github.xposed.androidspoofer.Constants.PREF_JSON_RO_MEDIA_DRM_UNIQUE_ID_WIDEVINE
 import io.github.xposed.androidspoofer.Constants.PREF_JSON_RW_APPPREF
 import io.github.xposed.androidspoofer.Constants.PREF_JSON_RW_APPPREF_LOGGING_ENABLED
 import io.github.xposed.androidspoofer.Constants.PREF_JSON_RW_CONFIG
@@ -16,9 +19,6 @@ import org.json.JSONObject
 
 class PreferencesManager(private val pref: SharedPreferences) {
     private val tag = this::class.simpleName
-    private val utils by lazy {
-        Utils()
-    }
 
     // used for some app specific things that shouldn't be modified by the user
     // this is currently the app list
@@ -45,6 +45,43 @@ class PreferencesManager(private val pref: SharedPreferences) {
         set(value) {
             ro = ro.put(PREF_JSON_RO_APPSLIST, value)
         }
+    var ro_media_drm_unique_id: JSONObject
+        get() {
+            try {
+                return ro.getJSONObject(PREF_JSON_RO_MEDIA_DRM_UNIQUE_ID)
+            } catch (e: JSONException) {
+                Log.e(tag, "Unable to retrieve ro_media_drm_unique_id. ro: $ro")
+                return JSONObject("{}")
+            }
+        }
+        set(value) {
+            ro = ro.put(PREF_JSON_RO_MEDIA_DRM_UNIQUE_ID, value)
+        }
+    var ro_media_drm_unique_id_widevine: String
+        get() {
+            try {
+                return ro_media_drm_unique_id.getString(PREF_JSON_RO_MEDIA_DRM_UNIQUE_ID_WIDEVINE)
+            } catch (e: JSONException) {
+                Log.e(tag, "Unable to retrieve ro_media_drm_unique_id. ro: $ro")
+                return ""
+            }
+        }
+        set(value) {
+            ro_media_drm_unique_id = ro_media_drm_unique_id.put(PREF_JSON_RO_MEDIA_DRM_UNIQUE_ID_WIDEVINE, value)
+        }
+    var ro_media_drm_unique_id_playready: String
+        get() {
+            try {
+                return ro_media_drm_unique_id.getString(PREF_JSON_RO_MEDIA_DRM_UNIQUE_ID_PLAYREADY)
+            } catch (e: JSONException) {
+                Log.e(tag, "Unable to retrieve ro_media_drm_unique_id. ro: $ro")
+                return ""
+            }
+        }
+        set(value) {
+            ro_media_drm_unique_id = ro_media_drm_unique_id.put(PREF_JSON_RO_MEDIA_DRM_UNIQUE_ID_PLAYREADY, value)
+        }
+
 
     var rw: JSONObject
         get() {
@@ -107,7 +144,7 @@ class PreferencesManager(private val pref: SharedPreferences) {
                     Utils.AppConfig(
                         conf.getString(PREF_JSON_RW_CONFIG_APPS_KEY),
                         conf.getString(PREF_JSON_RW_CONFIG_APPS_VALUE),
-                        utils.stringToAppsType(conf.getString(PREF_JSON_RW_CONFIG_APPS_TYPE))
+                        Utils.stringToAppsType(conf.getString(PREF_JSON_RW_CONFIG_APPS_TYPE))
                     )
                 )
             }

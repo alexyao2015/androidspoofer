@@ -1,6 +1,7 @@
 import { createRouter, createWebHashHistory, type Router } from "vue-router";
 import AppsConfig from "../pages/AppsConfig.vue";
 import Options from "../pages/Options.vue";
+import Info from "../pages/Info.vue";
 
 const routes = [
   { name: "home", path: "/", component: AppsConfig, props: true },
@@ -8,6 +9,12 @@ const routes = [
     name: "options",
     path: "/options",
     component: Options,
+    props: true,
+  },
+  {
+    name: "info",
+    path: "/info",
+    component: Info,
     props: true,
   },
 ];

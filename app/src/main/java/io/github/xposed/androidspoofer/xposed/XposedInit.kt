@@ -1,5 +1,6 @@
 package io.github.xposed.androidspoofer.xposed
 
+import android.media.MediaDrm
 import android.provider.Settings
 import de.robv.android.xposed.IXposedHookLoadPackage
 import de.robv.android.xposed.XSharedPreferences
@@ -30,6 +31,15 @@ class XposedInit : IXposedHookLoadPackage {
                 XposedConstants.SecureSettings.hookGetString(
                     lpparam,
                     Settings.Secure.ANDROID_ID,
+                    conf.value
+                )
+                util.log(tag, "${conf.type} hooked in ${lpparam.packageName}")
+            }
+            if (conf.type == Utils.ConfigAppsType.DRM_ID) {
+                if (!lpparam.packageName.equals(conf.key)) continue
+                XposedConstants.MediaDrmHook.hookGetPropertyByteArray(
+                    lpparam,
+                    MediaDrm.PROPERTY_DEVICE_UNIQUE_ID,
                     conf.value
                 )
                 util.log(tag, "${conf.type} hooked in ${lpparam.packageName}")
