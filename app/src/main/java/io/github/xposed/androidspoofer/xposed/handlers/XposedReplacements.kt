@@ -24,7 +24,7 @@ class SecureGetString(
 
         val original = param.result
         param.result = newValue
-        util.log(tag, "${lpparam.packageName}: Changed $replacementKey from $original -> $newValue")
+        util.log(tag, "${lpparam.packageName} ${tag}: Changed $replacementKey from $original -> $newValue")
     }
 }
 
@@ -47,6 +47,23 @@ class MediaDrmHook(
         val original = bytesToHex(param.result as ByteArray)
 
         param.result = replacementBytes
-        util.log(tag, "${lpparam.packageName}: Changed $replacementKey from $original -> $newValue")
+        util.log(tag, "${lpparam.packageName} ${tag}: Changed $replacementKey from $original -> $newValue")
     }
 }
+
+class AppsetIdReplacement(
+    private val lpparam: LoadPackageParam,
+    private val newValue: String,
+) :
+    XC_MethodHook() {
+
+    private val tag = this::class.simpleName
+
+    override fun afterHookedMethod(param: MethodHookParam) {
+        val original = param.result as String
+
+        param.result = newValue
+        util.log(tag, "${lpparam.packageName} ${tag}: Changed from $original -> $newValue")
+    }
+}
+

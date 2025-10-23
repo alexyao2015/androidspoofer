@@ -6,7 +6,9 @@ import android.content.Intent
 import android.content.pm.ApplicationInfo
 import android.content.pm.PackageManager
 import android.media.MediaDrm
+import android.net.Uri
 import android.os.Bundle
+import android.provider.Settings
 import android.webkit.JavascriptInterface
 import android.webkit.WebResourceRequest
 import android.webkit.WebResourceResponse
@@ -18,6 +20,9 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.webkit.WebViewAssetLoader
 import androidx.webkit.WebViewAssetLoader.AssetsPathHandler
 import androidx.webkit.WebViewClientCompat
+import com.google.android.gms.appset.AppSet
+import com.google.android.gms.appset.AppSetIdClient
+import com.google.android.gms.tasks.Tasks
 import io.github.xposed.androidspoofer.Constants
 import io.github.xposed.androidspoofer.Constants.CONF_EXPORT_NAME
 import io.github.xposed.androidspoofer.Constants.PLAYREADY_UUID
@@ -27,6 +32,9 @@ import io.github.xposed.androidspoofer.R
 import io.github.xposed.androidspoofer.Utils
 import org.json.JSONArray
 import org.json.JSONObject
+import androidx.core.net.toUri
+import com.google.android.gms.ads.identifier.AdvertisingIdClient
+
 
 class ActivityWebview : AppCompatActivity() {
     private lateinit var webview: WebView
@@ -182,32 +190,75 @@ class ActivityWebview : AppCompatActivity() {
             }
         }
 
-        private fun updateMediaDrmUniqueId() {
+        private fun updateUniqueIds() {
             try {
                 val widevineMediaDrm = MediaDrm(WIDEVINE_UUID)
                 try {
                     val widevine_id = widevineMediaDrm.getPropertyByteArray(MediaDrm.PROPERTY_DEVICE_UNIQUE_ID)
-                    prefManager.ro_media_drm_unique_id_widevine = Utils.bytesToHex(widevine_id)
+                    prefManager.ro_unique_id_widevine_drm = Utils.bytesToHex(widevine_id)
                 } finally {
                     widevineMediaDrm.close()
                 }
             } catch (e: Exception) {
                 e.printStackTrace()
-                prefManager.ro_media_drm_unique_id_widevine = ""
+                prefManager.ro_unique_id_widevine_drm = ""
             }
 
             try {
                 val playreadyMediaDrm = MediaDrm(PLAYREADY_UUID)
                 try {
                     val playready_id = playreadyMediaDrm.getPropertyByteArray(MediaDrm.PROPERTY_DEVICE_UNIQUE_ID)
-                    prefManager.ro_media_drm_unique_id_playready = Utils.bytesToHex(playready_id)
+                    prefManager.ro_unique_id_playready_drm = Utils.bytesToHex(playready_id)
                 } finally {
                     playreadyMediaDrm.close()
                 }
             } catch (e: Exception) {
                 e.printStackTrace()
-                prefManager.ro_media_drm_unique_id_playready = ""
+                prefManager.ro_unique_id_playready_drm = ""
             }
+            prefManager.ro_unique_id_android_id = Settings.Secure.getString(context.contentResolver, Settings.Secure.ANDROID_ID)
+            prefManager.ro_unique_id_gsf_id = getGsfId(context)
+            prefManager.ro_unique_id_appset_id = getAppsetId()
+            prefManager.ro_unique_id_ad_id = getAdId()
+        }
+        fun getAdId(): String {
+            try {
+                val adInfo = AdvertisingIdClient.getAdvertisingIdInfo(context)
+                val adId = adInfo.id
+                if (adId != null) {
+                    return adId
+                }
+            } catch (e: Exception) {
+                return "exception"
+            }
+            return "null_id"
+        }
+        fun getAppsetId(): String {
+            val client = AppSet.getClient(applicationContext)
+            val task = client.appSetIdInfo
+
+            val info = Tasks.await(task)
+            return info.id
+        }
+        fun getGsfId(context: Context): String {
+            fun hasPermission(context: Context, permission: String): Boolean {
+                return context.checkCallingOrSelfPermission(permission) == PackageManager.PERMISSION_GRANTED
+            }
+            val uri = "content://com.google.android.gsf.gservices".toUri()
+            // Check permission
+            if (!hasPermission(context, "com.google.android.providers.gsf.permission.READ_GSERVICES")) {
+                return "no_permission"
+            }
+            // Query the GSF provider with "android_id" key
+            val query = context.contentResolver.query(
+                uri, null, null,
+                arrayOf("android_id"),
+                null
+            )
+            if (query!!.moveToFirst() && query!!.columnCount >= 2) {
+                return java.lang.Long.toHexString(query!!.getString(1).toLong())
+            }
+            return "not_found"
         }
 
         @JavascriptInterface
@@ -227,7 +278,7 @@ class ActivityWebview : AppCompatActivity() {
         @JavascriptInterface
         fun getROPreferences(): String {
             updateAppList()
-            updateMediaDrmUniqueId()
+            updateUniqueIds()
             return prefManager.ro.toString()
         }
 

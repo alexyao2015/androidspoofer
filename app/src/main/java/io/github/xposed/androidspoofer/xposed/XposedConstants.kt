@@ -3,8 +3,10 @@ package io.github.xposed.androidspoofer.xposed
 import android.content.ContentResolver
 import android.media.MediaDrm
 import android.provider.Settings
+import com.google.android.gms.appset.AppSetIdInfo
 import de.robv.android.xposed.XposedHelpers
 import de.robv.android.xposed.callbacks.XC_LoadPackage.LoadPackageParam
+import io.github.xposed.androidspoofer.xposed.handlers.AppsetIdReplacement
 import io.github.xposed.androidspoofer.xposed.handlers.MediaDrmHook
 import io.github.xposed.androidspoofer.xposed.handlers.SecureGetString
 
@@ -40,6 +42,21 @@ object XposedConstants {
                 FUN.getPropertyByteArray,
                 String::class.java,
                 MediaDrmHook(lpparam, replacementString, newValue)
+            )
+        }
+    }
+    object AppsetIdHook {
+        val CLASS = AppSetIdInfo::class.java
+
+        object FUN {
+            const val getId = "getId"
+        }
+
+        fun hookGetPropertyByteArray(lpparam: LoadPackageParam, newValue: String) {
+            XposedHelpers.findAndHookMethod(
+                CLASS,
+                FUN.getId,
+                AppsetIdReplacement(lpparam, newValue)
             )
         }
     }

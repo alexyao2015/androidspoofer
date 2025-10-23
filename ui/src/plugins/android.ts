@@ -42,9 +42,13 @@ try {
     };
     ROPrefs = {
       appsList: ["my.app2.io", "my.app.io"],
-      mediaDrmUniqueId: {
+      uniqueIds: {
         widevineId: "sample_widevine_id_value",
         playReadyId: "sample_playready_id_value",
+        androidId: "sample_android_id_value",
+        gsfId: "sample_gsf_id_value",
+        appsetId: "sample_appset_id_value",
+        adId: "sample_ad_id_value",
       },
     };
   }
@@ -71,10 +75,14 @@ export const getROPreferences = (): IROPreferences => {
     roPref.appsList = [];
   }
   roPref.appsList.sort();
-  if (roPref.mediaDrmUniqueId === undefined) {
-    roPref.mediaDrmUniqueId = {
+  if (roPref.uniqueIds === undefined) {
+    roPref.uniqueIds = {
       widevineId: "unknown",
       playReadyId: "unknown",
+      androidId: "unknown",
+      gsfId: "unknown",
+      appsetId: "unknown",
+      adId: "unknown",
     };
   }
   return roPref;

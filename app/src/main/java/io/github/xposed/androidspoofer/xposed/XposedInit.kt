@@ -44,6 +44,12 @@ class XposedInit : IXposedHookLoadPackage {
                 )
                 util.log(tag, "${conf.type} hooked in ${lpparam.packageName}")
             }
+            if (conf.type == Utils.ConfigAppsType.APPSET_ID) {
+                XposedConstants.AppsetIdHook.hookGetPropertyByteArray(
+                    lpparam, conf.value
+                )
+                util.log(tag, "${conf.type} hooked in ${lpparam.packageName}")
+            }
         }
     }
 }

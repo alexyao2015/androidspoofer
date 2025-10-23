@@ -60,6 +60,12 @@ dependencies {
     implementation 'androidx.appcompat:appcompat:1.7.1'
     implementation 'androidx.webkit:webkit:1.14.0'
 
+    // Appset ID
+    implementation 'com.google.android.gms:play-services-appset:16.1.0'
+
+    // Ad ID
+    implementation "com.google.android.gms:play-services-ads-identifier:18.2.0"
+
     // Xposed API
     compileOnly files('libs/api-82.jar')
     compileOnly files('libs/api-82-sources.jar')

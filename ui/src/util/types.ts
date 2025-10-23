@@ -8,6 +8,7 @@ export interface IAppConfigTypeMeta {
 export interface IAppConfigTypeMetadata {
   android_id: IAppConfigTypeMeta;
   drm_id: IAppConfigTypeMeta;
+  appset_id: IAppConfigTypeMeta;
 }
 export interface IAppsConfig {
   key: string;
@@ -26,9 +27,13 @@ export interface IAppPreferences {
 // ro preferences
 export interface IROPreferences {
   appsList: Array<string>;
-  mediaDrmUniqueId: {
+  uniqueIds: {
     widevineId: string;
     playReadyId: string;
+    androidId: string;
+    gsfId: string;
+    appsetId: string;
+    adId: string;
   };
 }
 

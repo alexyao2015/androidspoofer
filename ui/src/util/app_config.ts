@@ -22,9 +22,17 @@ export const appConfigTypeMetadata: IAppConfigTypeMetadata = Object.freeze({
       return buf2hex(rand.buffer);
     },
   },
+  appset_id: {
+    key: "appset_id",
+    friendly: "Appset ID",
+    generate: () => {
+      return crypto.randomUUID();
+    },
+  },
 });
 
 export enum AppConfigType {
   android_id = "android_id",
   drm_id = "drm_id",
+  appset_id = "appset_id",
 }

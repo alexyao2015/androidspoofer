@@ -7,6 +7,8 @@ import android.net.Uri
 import io.github.xposed.androidspoofer.Constants.PREF_JSON_RO
 import io.github.xposed.androidspoofer.Constants.PREF_JSON_RW
 import io.github.xposed.androidspoofer.Constants.PREF_JSON_RW_CONFIG_APPS_TYPE_ANDROID_ID
+import io.github.xposed.androidspoofer.Constants.PREF_JSON_RW_CONFIG_APPS_TYPE_APPSET_ID
+import io.github.xposed.androidspoofer.Constants.PREF_JSON_RW_CONFIG_APPS_TYPE_DRM_ID
 import org.json.JSONObject
 import java.io.BufferedWriter
 import java.io.ByteArrayOutputStream
@@ -69,7 +71,8 @@ object Utils {
 
     enum class ConfigAppsType {
         ANDROID_ID,
-        DRM_ID
+        DRM_ID,
+        APPSET_ID
     }
 
     data class AppConfig(val key: String, val value: String, val type: ConfigAppsType)
@@ -77,6 +80,12 @@ object Utils {
     fun stringToAppsType(typeString: String): ConfigAppsType {
         if (typeString == PREF_JSON_RW_CONFIG_APPS_TYPE_ANDROID_ID) {
             return ConfigAppsType.ANDROID_ID
+        }
+        if (typeString == PREF_JSON_RW_CONFIG_APPS_TYPE_DRM_ID) {
+            return ConfigAppsType.DRM_ID
+        }
+        if (typeString == PREF_JSON_RW_CONFIG_APPS_TYPE_APPSET_ID) {
+            return ConfigAppsType.APPSET_ID
         }
         throw UnsupportedOperationException("Unable to decode app type")
     }
