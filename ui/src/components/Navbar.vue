@@ -3,7 +3,7 @@ import { mdiHome, mdiWrench, mdiTicket, mdiCog, mdiInformation } from "@mdi/js";
 </script>
 
 <template>
-  <v-bottom-navigation>
+  <v-bottom-navigation height="75">
     <v-tabs>
       <v-tab to="/">
         <v-icon :icon="mdiHome"></v-icon>

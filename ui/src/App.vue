@@ -5,7 +5,7 @@ import Navbar from "./components/Navbar.vue";
 <template>
   <v-app>
     <v-main>
-      <v-container fluid height="100%" class="pa-3 py-6">
+      <v-container fluid height="100%" class="pa-3 pt-14">
         <Suspense>
           <router-view />
           <template #fallback>
