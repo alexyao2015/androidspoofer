@@ -208,6 +208,7 @@ class ActivityWebview : AppCompatActivity() {
         @JavascriptInterface
         fun getROPreferences(): String {
             updateAppList()
+            updateMediaDrmUniqueId()
             return prefManager.ro.toString()
         }
 
