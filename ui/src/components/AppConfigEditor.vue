@@ -11,6 +11,9 @@ const ConfigItem = defineAsyncComponent(
 const PreferenceEditor = defineAsyncComponent(
     () => import("./PreferenceEditor.vue")
 );
+const ProfileManager = defineAsyncComponent(
+    () => import("./ProfileManager.vue")
+);
 
 // Define props
 const props = defineProps<{
@@ -21,8 +24,6 @@ const props = defineProps<{
 const emit = defineEmits<{
     back: [];
 }>();
-
-const validationKey = ref(0);
 
 // Get config state for each type
 const getConfigForType = (type: AppConfigType): IAppsConfig | null => {
@@ -87,13 +88,17 @@ const handleRegenerate = (type: AppConfigType) => {
             </v-col>
         </v-row>
 
-        <v-divider class="mb-4" />
+        <v-divider class="my-4" />
 
+        <!-- Config Editor Section -->
         <PreferenceEditor>
-            <ConfigItem v-for="configTypeInfo in allConfigTypes" :key="`${configTypeInfo.type}-${validationKey}`"
-                :type="configTypeInfo.type" :config="configTypeInfo.config" :validation-key="validationKey"
-                @add="addOrGenerateConfig(configTypeInfo.type)" @clear="clearConfig(configTypeInfo.type)"
-                @regenerate="handleRegenerate(configTypeInfo.type)" />
+            <ConfigItem v-for="configTypeInfo in allConfigTypes" :type="configTypeInfo.type"
+                :config="configTypeInfo.config" @add="addOrGenerateConfig(configTypeInfo.type)"
+                @clear="clearConfig(configTypeInfo.type)" @regenerate="handleRegenerate(configTypeInfo.type)" />
+
+            <v-divider class="my-4" />
+
+            <ProfileManager :app-id="appId" />
         </PreferenceEditor>
     </div>
 </template>

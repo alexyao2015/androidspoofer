@@ -16,8 +16,18 @@ export interface IAppsConfig {
   type: AppConfigType;
 }
 
+export interface IAppProfile {
+  name: string;
+  configs: {
+    android_id?: string;
+    drm_id?: string;
+    appset_id?: string;
+  };
+}
+
 export interface IAppConfig {
   apps: Array<IAppsConfig>;
+  profiles?: { [appId: string]: IAppProfile[] };
 }
 
 export interface IAppPreferences {
