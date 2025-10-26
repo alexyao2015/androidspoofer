@@ -1,5 +1,7 @@
 <script setup lang="ts">
 import Navbar from "./components/Navbar.vue";
+
+const isCheckFlavor = __APP_FLAVOR__ === "check";
 </script>
 
 <template>
@@ -14,6 +16,6 @@ import Navbar from "./components/Navbar.vue";
         </Suspense>
       </v-container>
     </v-main>
-    <Navbar />
+    <Navbar v-if="!isCheckFlavor" />
   </v-app>
 </template>

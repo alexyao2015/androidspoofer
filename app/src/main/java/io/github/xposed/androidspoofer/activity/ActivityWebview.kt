@@ -23,6 +23,7 @@ import androidx.webkit.WebViewClientCompat
 import com.google.android.gms.appset.AppSet
 import com.google.android.gms.appset.AppSetIdClient
 import com.google.android.gms.tasks.Tasks
+import io.github.xposed.androidspoofer.BuildConfig
 import io.github.xposed.androidspoofer.Constants
 import io.github.xposed.androidspoofer.Constants.CONF_EXPORT_NAME
 import io.github.xposed.androidspoofer.Constants.PLAYREADY_UUID
@@ -43,7 +44,13 @@ class ActivityWebview : AppCompatActivity() {
         try {
             getSharedPreferences(Constants.SHARED_PREF_FILE_NAME, MODE_WORLD_READABLE)
         } catch (_: Exception) {
-            null
+            // For check variant, fall back to MODE_PRIVATE to allow viewing device IDs
+            // even when Xposed module is not enabled
+            if (BuildConfig.IS_CHECK_VARIANT) {
+                getSharedPreferences(Constants.SHARED_PREF_FILE_NAME, MODE_PRIVATE)
+            } else {
+                null
+            }
         }
     }
 
@@ -59,7 +66,8 @@ class ActivityWebview : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.webview_main)
 
-        if (pref == null) {
+        // Only show module not enabled alert for full variant
+        if (pref == null && !BuildConfig.IS_CHECK_VARIANT) {
             AlertDialog.Builder(this).setMessage(R.string.module_not_enabled)
                 .setPositiveButton(R.string.close) { _, _ ->
                     finish()
@@ -172,7 +180,7 @@ class ActivityWebview : AppCompatActivity() {
 
     private inner class WebAppInterface(private val context: Context) {
         private val prefManager by lazy {
-            PreferencesManager(pref!!)
+            PreferencesManager(pref ?: getSharedPreferences(Constants.SHARED_PREF_FILE_NAME, MODE_PRIVATE))
         }
         private val pm by lazy {
             context.packageManager

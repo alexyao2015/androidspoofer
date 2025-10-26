@@ -7,8 +7,10 @@ RUN set -x \
 
 COPY ui .
 RUN set -x \
-    && mkdir -p /app/src/main/assets/webview \
-    && yarn build
+    && mkdir -p /app/src/full/assets/webview \
+    && mkdir -p /app/src/check/assets/webview \
+    && APP_FLAVOR=full yarn build \
+    && APP_FLAVOR=check yarn build
 
 FROM alpine AS sdkmanager
 

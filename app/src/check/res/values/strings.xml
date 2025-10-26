@@ -1,0 +1,5 @@
+<resources xmlns:tools="http://schemas.android.com/tools" tools:ignore="MissingTranslation">
+    <!-- Override only the app name for check variant -->
+    <!-- All other strings are inherited from main/res/values/strings.xml -->
+    <string name="app_name">Android Spoofer Check</string>
+</resources>

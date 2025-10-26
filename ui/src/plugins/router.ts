@@ -3,21 +3,32 @@ import AppsConfig from "../pages/AppsConfig.vue";
 import Options from "../pages/Options.vue";
 import Info from "../pages/Info.vue";
 
-const routes = [
-  { name: "home", path: "/", component: AppsConfig, props: true },
-  {
-    name: "options",
-    path: "/options",
-    component: Options,
-    props: true,
-  },
-  {
-    name: "info",
-    path: "/info",
-    component: Info,
-    props: true,
-  },
-];
+const isCheckFlavor = __APP_FLAVOR__ === "check";
+
+const routes = isCheckFlavor
+  ? [
+      {
+        name: "info",
+        path: "/",
+        component: Info,
+        props: true,
+      },
+    ]
+  : [
+      { name: "home", path: "/", component: AppsConfig, props: true },
+      {
+        name: "options",
+        path: "/options",
+        component: Options,
+        props: true,
+      },
+      {
+        name: "info",
+        path: "/info",
+        component: Info,
+        props: true,
+      },
+    ];
 
 const router: Router = createRouter({
   history: createWebHashHistory(),

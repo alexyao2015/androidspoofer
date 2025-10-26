@@ -103,6 +103,7 @@ lint/tmp/
 *.hprof
 
 # Ui webview
-/app/src/main/assets/webview
+/app/src/full/assets/webview
+/app/src/check/assets/webview
 /output
 /cache

@@ -8,7 +8,7 @@ android {
 
     applicationVariants.all { variant ->
         variant.outputs.all {
-            outputFileName = "${defaultConfig.applicationId}_${defaultConfig.versionName}_${variant.buildType.name}.apk"
+            outputFileName = "${variant.applicationId}_${defaultConfig.versionName}_${variant.buildType.name}.apk"
         }
     }
 
@@ -27,6 +27,33 @@ android {
         targetSdk 36
         versionCode 1
         versionName "1.0.0"
+    }
+
+    flavorDimensions = ["version"]
+    productFlavors {
+        full {
+            dimension "version"
+            applicationIdSuffix ""
+            buildConfigField "boolean", "IS_CHECK_VARIANT", "false"
+        }
+        check {
+            dimension "version"
+            applicationIdSuffix ".check"
+            buildConfigField "boolean", "IS_CHECK_VARIANT", "true"
+            
+            // Exclude xposed_init file from check variant
+            sourceSets.check.assets.excludes += ['**/xposed_init']
+        }
+    }
+
+    sourceSets {
+        check {
+            // Exclude xposed_init from check variant assets
+            assets.srcDirs = ['src/check/assets']
+        }
+        full {
+            assets.srcDirs = ['src/full/assets', 'src/main/assets']
+        }
     }
 
     buildTypes {
