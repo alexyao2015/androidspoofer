@@ -1,0 +1,99 @@
+<script setup lang="ts">
+import { mdiArrowLeft } from "@mdi/js";
+import { computed, defineAsyncComponent, watch, ref } from "vue";
+import pref from "../plugins/store";
+import { AppConfigType, appConfigTypeMetadata } from "../util/app_config";
+import { IAppsConfig } from "../util/types";
+
+const ConfigItem = defineAsyncComponent(
+    () => import("./ConfigItem.vue")
+);
+const PreferenceEditor = defineAsyncComponent(
+    () => import("./PreferenceEditor.vue")
+);
+
+// Define props
+const props = defineProps<{
+    appId: string;
+}>();
+
+// Define emits
+const emit = defineEmits<{
+    back: [];
+}>();
+
+const validationKey = ref(0);
+
+// Get config state for each type
+const getConfigForType = (type: AppConfigType): IAppsConfig | null => {
+    return pref.rwPreferences.config.apps.find(
+        (config) => config.key === props.appId && config.type === type
+    ) || null;
+};
+
+// Create a computed array of all config types with their current values
+const allConfigTypes = computed(() => {
+    return Object.values(AppConfigType).map(type => ({
+        type,
+        config: getConfigForType(type)
+    }));
+});
+
+const handleBack = () => {
+    emit("back");
+};
+
+const addOrGenerateConfig = (type: AppConfigType) => {
+    pref.rwPreferences.config.apps.push({
+        key: props.appId,
+        value: appConfigTypeMetadata[type].generate(),
+        type: type,
+    });
+};
+
+const clearConfig = (type: AppConfigType) => {
+    const existingConfig = getConfigForType(type);
+    if (existingConfig) {
+        const idx_to_remove = pref.rwPreferences.config.apps.indexOf(existingConfig);
+        pref.rwPreferences.config.apps.splice(idx_to_remove, 1);
+    }
+};
+
+const regenerateConfigValue = (config: IAppsConfig) => {
+    config.value = appConfigTypeMetadata[config.type].generate();
+};
+
+const handleRegenerate = (type: AppConfigType) => {
+    const config = getConfigForType(type);
+    if (config) {
+        regenerateConfigValue(config);
+    }
+};
+</script>
+
+<template>
+    <div>
+        <v-row>
+            <v-col>
+                <v-btn @click="handleBack" variant="text" :prepend-icon="mdiArrowLeft">
+                    Back to apps
+                </v-btn>
+            </v-col>
+        </v-row>
+
+        <v-row>
+            <v-col>
+                <h2 class="text-h5 mb-4">{{ appId }}</h2>
+            </v-col>
+        </v-row>
+
+        <v-divider class="mb-4" />
+
+        <PreferenceEditor>
+            <ConfigItem v-for="configTypeInfo in allConfigTypes" :key="`${configTypeInfo.type}-${validationKey}`"
+                :type="configTypeInfo.type" :config="configTypeInfo.config" :validation-key="validationKey"
+                @add="addOrGenerateConfig(configTypeInfo.type)" @clear="clearConfig(configTypeInfo.type)"
+                @regenerate="handleRegenerate(configTypeInfo.type)" />
+        </PreferenceEditor>
+    </div>
+</template>

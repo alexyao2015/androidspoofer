@@ -1,187 +1,29 @@
 <script setup lang="ts">
-import { mdiReload } from "@mdi/js";
-import { defineAsyncComponent, Ref, ref, watch } from "vue";
-import pref from "../plugins/store";
-import { AppConfigType, appConfigTypeMetadata } from "../util/app_config";
-import { IAppsConfig } from "../util/types";
-const PreferenceEditor = defineAsyncComponent(
-  () => import("../components/PreferenceEditor.vue")
+import { defineAsyncComponent, Ref, ref } from "vue";
+
+const AppList = defineAsyncComponent(
+  () => import("../components/AppList.vue")
+);
+const AppConfigEditor = defineAsyncComponent(
+  () => import("../components/AppConfigEditor.vue")
 );
 
-const selectedType = ref(Object.values(AppConfigType));
-const searchField: Ref<null | string> = ref(null);
-const searchFieldAppsList: Ref<null | string> = ref(null);
-const validationKey = ref(0);
+// Two-step flow: first select app, then configure
+const selectedAppId: Ref<null | string> = ref(null);
 
-const selectedConfigs = () => {
-  let app_configs = pref.rwPreferences.config.apps;
-  if (selectedType.value.length > 1) {
-    app_configs = app_configs.filter((config) =>
-      selectedType.value.includes(config.type)
-    );
-  }
-  const search = searchField.value;
-  if (search !== null) {
-    app_configs = app_configs.filter(
-      (config) =>
-        // These properties may be null if the form is partially cleared
-        config.key?.toLowerCase().includes(search.toLowerCase()) ||
-        config.value?.toLowerCase().includes(search.toLowerCase())
-    );
-  }
-  return app_configs;
+const selectApp = (appId: string) => {
+  selectedAppId.value = appId;
 };
 
-const filteredAppList = () => {
-  const apps_list = pref.roPreferences.appsList;
-  const search = searchFieldAppsList.value;
-  if (search === null) return apps_list;
-
-  return apps_list.filter((app) => {
-    return app.toLowerCase().includes(search.toLowerCase());
-  });
+const goBackToAppList = () => {
+  selectedAppId.value = null;
 };
-
-const addConfig = () => {
-  const selected_configs = selectedConfigs();
-  if (selected_configs.length === 0) {
-    const new_type =
-      selectedType.value.length > 1
-        ? selectedType.value[0]
-        : AppConfigType.android_id;
-    pref.rwPreferences.config.apps.push({
-      key: "",
-      value: "",
-      type: new_type,
-    });
-    return;
-  }
-  const last_config = selected_configs[selected_configs.length - 1];
-  const config_copy = { ...last_config };
-  pref.rwPreferences.config.apps.push(config_copy);
-};
-
-const removeConfig = (config: IAppsConfig) => {
-  const idx_to_remove = pref.rwPreferences.config.apps.indexOf(config);
-  pref.rwPreferences.config.apps.splice(idx_to_remove, 1);
-};
-
-const regenerateConfigValue = (config: IAppsConfig) => {
-  config.value = appConfigTypeMetadata[config.type].generate();
-};
-
-const notNull = (value: any) => !!value || "Required";
-const noAppDuplicates = (config: IAppsConfig) => (value: any) => {
-  const duplicates = pref.rwPreferences.config.apps.filter(
-    (c) => c !== config && c.key === config.key && c.type === config.type
-  );
-  return duplicates.length === 0 || "Duplicate";
-};
-
-// Watch for changes to app configs and trigger re-validation
-watch(
-  () => pref.rwPreferences.config.apps.map((c) => `${c.key}-${c.type}`),
-  () => {
-    validationKey.value++;
-  },
-  { deep: true }
-);
 </script>
 
 <template>
-  <v-select
-    v-model="selectedType"
-    label="Type"
-    multiple
-    clearable
-    :items="Object.values(appConfigTypeMetadata)"
-    item-title="friendly"
-    item-value="key"
-  ></v-select>
-  <v-text-field
-    v-model="searchField"
-    clearable
-    hide-details="auto"
-    label="Search"
-  ></v-text-field>
-  <v-list-item class="d-flex flex-column" min-height="10px"></v-list-item>
-  <v-text-field
-    v-model="searchFieldAppsList"
-    clearable
-    hide-details="auto"
-    label="Search app list"
-  ></v-text-field>
-  <v-row>
-    <v-col>
-      <v-list-item class="d-flex flex-column" min-height="10px"></v-list-item>
-      <v-divider />
-    </v-col>
-  </v-row>
-  <PreferenceEditor>
-    <v-row
-      v-for="(config, index) in selectedConfigs()"
-      :key="`${index}-${validationKey}`"
-    >
-      <v-container class="pa-0 fill-height">
-        <v-col cols="9" class="pb-0">
-          <v-select
-            v-model="config.key"
-            validate-on="eager"
-            :rules="[noAppDuplicates(config), notNull]"
-            label="App ID"
-            hide-details="auto"
-            :items="filteredAppList()"
-          ></v-select>
-          <v-list-item
-            class="d-flex flex-column"
-            min-height="10px"
-          ></v-list-item>
-          <v-text-field
-            v-model="config.value"
-            validate-on="eager"
-            clearable
-            hide-details="auto"
-            :rules="[notNull]"
-            label="Replacement Value"
-          ></v-text-field>
-          <div v-if="selectedType.length !== 1">
-            <v-list-item
-              class="d-flex flex-column"
-              min-height="10px"
-            ></v-list-item>
-            <v-select
-              v-model="config.type"
-              label="Type"
-              hide-details="auto"
-              validate-on="eager"
-              :rules="[noAppDuplicates(config)]"
-              :items="Object.values(appConfigTypeMetadata)"
-              item-title="friendly"
-              item-value="key"
-            ></v-select>
-          </div>
-        </v-col>
-        <v-col cols="3" class="pb-0">
-          <v-btn @click="removeConfig(config)" style="height: 56px">X</v-btn>
-          <div>
-            <v-list-item
-              class="d-flex flex-column"
-              min-height="10px"
-            ></v-list-item>
-            <v-btn @click="regenerateConfigValue(config)" style="height: 56px">
-              <v-icon :icon="mdiReload"> </v-icon>
-            </v-btn>
-          </div>
-        </v-col>
-        <v-list-item class="d-flex flex-column" min-height="10px"></v-list-item>
-      </v-container>
-    </v-row>
-    <v-row>
-      <v-col>
-        <v-col class="text-right">
-          <v-btn @click="addConfig()" style="height: 56px">Add Config</v-btn>
-        </v-col>
-      </v-col>
-    </v-row>
-  </PreferenceEditor>
+  <!-- Step 1: App Selection View -->
+  <AppList v-if="!selectedAppId" @select-app="selectApp" />
+
+  <!-- Step 2: Config Editor View -->
+  <AppConfigEditor v-else :app-id="selectedAppId" @back="goBackToAppList" />
 </template>
