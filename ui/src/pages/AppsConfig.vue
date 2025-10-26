@@ -179,12 +179,7 @@ watch(
     <v-row>
       <v-col>
         <v-col class="text-right">
-          <v-btn
-            v-if="searchField === null"
-            @click="addConfig()"
-            style="height: 56px"
-            >Add Config</v-btn
-          >
+          <v-btn @click="addConfig()" style="height: 56px">Add Config</v-btn>
         </v-col>
       </v-col>
     </v-row>
