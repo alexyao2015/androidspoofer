@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { mdiReload } from "@mdi/js";
-import { defineAsyncComponent, Ref, ref } from "vue";
+import { defineAsyncComponent, Ref, ref, watch } from "vue";
 import pref from "../plugins/store";
 import { AppConfigType, appConfigTypeMetadata } from "../util/app_config";
 import { IAppsConfig } from "../util/types";
@@ -11,6 +11,7 @@ const PreferenceEditor = defineAsyncComponent(
 const selectedType = ref(Object.values(AppConfigType));
 const searchField: Ref<null | string> = ref(null);
 const searchFieldAppsList: Ref<null | string> = ref(null);
+const validationKey = ref(0);
 
 const selectedConfigs = () => {
   let app_configs = pref.rwPreferences.config.apps;
@@ -71,12 +72,21 @@ const regenerateConfigValue = (config: IAppsConfig) => {
 };
 
 const notNull = (value: any) => !!value || "Required";
-const noAppDuplicates = (value: any) => {
+const noAppDuplicates = (config: IAppsConfig) => (value: any) => {
   const duplicates = pref.rwPreferences.config.apps.filter(
-    (config) => config.key === value
+    (c) => c !== config && c.key === config.key && c.type === config.type
   );
-  return duplicates.length <= 1 || "Duplicate";
+  return duplicates.length === 0 || "Duplicate";
 };
+
+// Watch for changes to app configs and trigger re-validation
+watch(
+  () => pref.rwPreferences.config.apps.map((c) => `${c.key}-${c.type}`),
+  () => {
+    validationKey.value++;
+  },
+  { deep: true }
+);
 </script>
 
 <template>
@@ -109,13 +119,16 @@ const noAppDuplicates = (value: any) => {
     </v-col>
   </v-row>
   <PreferenceEditor>
-    <v-row v-for="(config, index) in selectedConfigs()">
+    <v-row
+      v-for="(config, index) in selectedConfigs()"
+      :key="`${index}-${validationKey}`"
+    >
       <v-container class="pa-0 fill-height">
         <v-col cols="9" class="pb-0">
           <v-select
             v-model="config.key"
             validate-on="eager"
-            :rules="[noAppDuplicates, notNull]"
+            :rules="[noAppDuplicates(config), notNull]"
             label="App ID"
             hide-details="auto"
             :items="filteredAppList()"
@@ -141,6 +154,8 @@ const noAppDuplicates = (value: any) => {
               v-model="config.type"
               label="Type"
               hide-details="auto"
+              validate-on="eager"
+              :rules="[noAppDuplicates(config)]"
               :items="Object.values(appConfigTypeMetadata)"
               item-title="friendly"
               item-value="key"
