@@ -58,7 +58,6 @@ const addConfig = () => {
   }
   const last_config = selected_configs[selected_configs.length - 1];
   const config_copy = { ...last_config };
-  config_copy.key = "";
   pref.rwPreferences.config.apps.push(config_copy);
 };
 
