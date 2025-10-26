@@ -18,6 +18,7 @@
     *;
 }
 -keepnames class io.github.xposed.androidspoofer.xposed.handlers.*
+-keepnames class io.github.xposed.androidspoofer.xposed.XposedConstants
 
 # Uncomment this to preserve the line number information for
 # debugging stack traces.

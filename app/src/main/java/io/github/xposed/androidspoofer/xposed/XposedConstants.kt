@@ -9,6 +9,7 @@ import de.robv.android.xposed.callbacks.XC_LoadPackage.LoadPackageParam
 import io.github.xposed.androidspoofer.xposed.handlers.AppsetIdReplacement
 import io.github.xposed.androidspoofer.xposed.handlers.MediaDrmHook
 import io.github.xposed.androidspoofer.xposed.handlers.SecureGetString
+import io.github.xposed.androidspoofer.xposed.handlers.SecureGetStringForUser
 
 
 object XposedConstants {
@@ -17,6 +18,7 @@ object XposedConstants {
 
         object FUN {
             const val getString = "getString"
+            const val getStringForUser = "getStringForUser"
         }
 
         fun hookGetString(lpparam: LoadPackageParam, replacementString: String, newValue: String) {
@@ -26,6 +28,17 @@ object XposedConstants {
                 ContentResolver::class.java,
                 String::class.java,
                 SecureGetString(lpparam, replacementString, newValue)
+            )
+        }
+
+        fun hookGetStringForUser(lpparam: LoadPackageParam, replacementString: String, newValue: String) {
+            XposedHelpers.findAndHookMethod(
+                CLASS,
+                FUN.getStringForUser,
+                ContentResolver::class.java,
+                String::class.java,
+                Int::class.javaPrimitiveType,  // userId
+                SecureGetStringForUser(lpparam, replacementString, newValue)
             )
         }
     }

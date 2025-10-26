@@ -33,6 +33,11 @@ class XposedInit : IXposedHookLoadPackage {
                     Settings.Secure.ANDROID_ID,
                     conf.value
                 )
+                XposedConstants.SecureSettings.hookGetStringForUser(
+                    lpparam,
+                    Settings.Secure.ANDROID_ID,
+                    conf.value
+                )
                 util.log(tag, "${conf.type} hooked in ${lpparam.packageName}")
             }
             if (conf.type == Utils.ConfigAppsType.DRM_ID) {

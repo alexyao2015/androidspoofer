@@ -20,11 +20,40 @@ class SecureGetString(
         val contextResolver = param.args[0] as ContentResolver
         val wantedKey = param.args[1] as String
         // only change if we are checking for the specific key
-        if (wantedKey !== replacementKey) return
+        if (wantedKey !== replacementKey) {
+            util.log(tag, "${lpparam.packageName}: Skipped changing $wantedKey because it does not match $replacementKey")
+            return
+        }
 
         val original = param.result
         param.result = newValue
-        util.log(tag, "${lpparam.packageName} ${tag}: Changed $replacementKey from $original -> $newValue")
+        util.log(tag, "${lpparam.packageName}: Changed $replacementKey from $original -> $newValue")
+    }
+}
+
+class SecureGetStringForUser(
+    private val lpparam: LoadPackageParam,
+    private val replacementKey: String,
+    private val newValue: String,
+) :
+    XC_MethodHook() {
+
+    private val tag = this::class.simpleName
+
+    override fun afterHookedMethod(param: MethodHookParam) {
+        val contextResolver = param.args[0] as ContentResolver
+        val wantedKey = param.args[1] as String
+        val userId = param.args[2] as Int
+
+        // only change if we are checking for the specific key
+        if (wantedKey !== replacementKey) {
+            util.log(tag, "${lpparam.packageName}: Skipped changing $wantedKey because it does not match $replacementKey")
+            return
+        }
+
+        val original = param.result
+        param.result = newValue
+        util.log(tag, "${lpparam.packageName}: Changed $replacementKey from $original -> $newValue")
     }
 }
 
@@ -47,7 +76,7 @@ class MediaDrmHook(
         val original = bytesToHex(param.result as ByteArray)
 
         param.result = replacementBytes
-        util.log(tag, "${lpparam.packageName} ${tag}: Changed $replacementKey from $original -> $newValue")
+        util.log(tag, "${lpparam.packageName}: Changed $replacementKey from $original -> $newValue")
     }
 }
 
@@ -63,7 +92,7 @@ class AppsetIdReplacement(
         val original = param.result as String
 
         param.result = newValue
-        util.log(tag, "${lpparam.packageName} ${tag}: Changed from $original -> $newValue")
+        util.log(tag, "${lpparam.packageName}: Changed from $original -> $newValue")
     }
 }
 
