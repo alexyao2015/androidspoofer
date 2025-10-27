@@ -41,7 +41,10 @@ try {
       },
     };
     ROPrefs = {
-      appsList: ["my.app2.io", "my.app.io"],
+      appsList: {
+        "My App 2": "my.app2.io",
+        "My App": "my.app.io",
+      },
       uniqueIds: {
         widevineId: "sample_widevine_id_value",
         playReadyId: "sample_playready_id_value",
@@ -71,9 +74,8 @@ try {
 export const getROPreferences = (): IROPreferences => {
   const roPref = JSON.parse(AndroidImpl.getROPreferences()) as IROPreferences;
   if (roPref.appsList === undefined) {
-    roPref.appsList = [];
+    roPref.appsList = {};
   }
-  roPref.appsList.sort();
   if (roPref.uniqueIds === undefined) {
     roPref.uniqueIds = {
       widevineId: "unknown",

@@ -191,9 +191,10 @@ class ActivityWebview : AppCompatActivity() {
             val flags =
                 PackageManager.ApplicationInfoFlags.of(PackageManager.GET_META_DATA.toLong())
             appInfos = pm.getInstalledApplications(flags)
-            prefManager.ro_applist = JSONArray().apply {
+            prefManager.ro_applist = JSONObject().apply {
                 for (appInfo in appInfos) {
-                    put(appInfo.packageName)
+                    val appName = appInfo.loadLabel(pm).toString()
+                    put(appName, appInfo.packageName)
                 }
             }
         }

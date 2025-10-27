@@ -37,13 +37,13 @@ class PreferencesManager(private val pref: SharedPreferences) {
                 apply()
             }
         }
-    var ro_applist: JSONArray
+    var ro_applist: JSONObject
         get() {
             try {
-                return ro.getJSONArray(PREF_JSON_RO_APPSLIST)
+                return ro.getJSONObject(PREF_JSON_RO_APPSLIST)
             } catch (e: JSONException) {
                 Log.e(tag, "Unable to retrieve ro_applist. ro: $ro")
-                return JSONArray("[]")
+                return JSONObject("{}")
             }
         }
         set(value) {

@@ -36,7 +36,7 @@ export interface IAppPreferences {
 
 // ro preferences
 export interface IROPreferences {
-  appsList: Array<string>;
+  appsList: { [appName: string]: string };
   uniqueIds: {
     widevineId: string;
     playReadyId: string;
