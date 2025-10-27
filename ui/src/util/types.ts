@@ -58,5 +58,5 @@ export interface IAndroidInterface {
   getRWPreferences(): string;
   setRWPreferences(preferences: string): void;
   exportPreferences(): void;
-  importPreferences(): boolean;
+  importPreferences(): void;
 }

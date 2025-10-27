@@ -13,7 +13,11 @@ const PreferenceEditor = defineAsyncComponent(
     <PreferenceEditor>
       <v-row>
         <v-col>
-          <v-checkbox hide-details v-model="pref.rwPreferences.appPref.loggingEnabled" label="Enable logging">
+          <v-checkbox
+            hide-details
+            v-model="pref.rwPreferences.appPref.loggingEnabled"
+            label="Enable logging"
+          >
           </v-checkbox>
         </v-col>
       </v-row>
@@ -30,7 +34,12 @@ const PreferenceEditor = defineAsyncComponent(
         </v-btn>
       </v-col>
       <v-col cols="auto">
-        <v-btn @click="importPreferences() && pref.reset()">
+        <v-btn
+          @click="
+            importPreferences();
+            pref.reset();
+          "
+        >
           <v-icon>{{ mdiImport }}</v-icon>
           Import Settings
         </v-btn>

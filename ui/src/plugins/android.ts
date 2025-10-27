@@ -63,7 +63,6 @@ try {
     },
     importPreferences: () => {
       console.log("import preferences");
-      return true;
     },
   };
 }
@@ -113,5 +112,5 @@ export const exportPreferences = () => {
 };
 
 export const importPreferences = () => {
-  return AndroidImpl.importPreferences();
+  AndroidImpl.importPreferences();
 };

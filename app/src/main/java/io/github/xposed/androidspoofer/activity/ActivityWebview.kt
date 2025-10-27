@@ -275,12 +275,12 @@ class ActivityWebview : AppCompatActivity() {
         }
 
         /**
-         * Returns true if importing preferences was successful
+         * Launches the file picker to import preferences.
+         * The actual import result will be shown via Toast notification.
          */
         @JavascriptInterface
-        fun importPreferences(): Boolean {
+        fun importPreferences() {
             importConfFile()
-            return false
         }
 
         @JavascriptInterface
@@ -298,6 +298,11 @@ class ActivityWebview : AppCompatActivity() {
         @JavascriptInterface
         fun setRWPreferences(value: String) {
             prefManager.rw = JSONObject(value)
+        }
+
+        @JavascriptInterface
+        fun refreshUniqueIds() {
+            updateUniqueIds()
         }
     }
 }
