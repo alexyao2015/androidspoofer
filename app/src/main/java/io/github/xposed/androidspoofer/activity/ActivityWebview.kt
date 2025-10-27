@@ -310,10 +310,5 @@ class ActivityWebview : AppCompatActivity() {
         fun setRWPreferences(value: String) {
             prefManager.rw = JSONObject(value)
         }
-
-        @JavascriptInterface
-        fun refreshUniqueIds() {
-            updateUniqueIds()
-        }
     }
 }
