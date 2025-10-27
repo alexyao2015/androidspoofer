@@ -3,16 +3,24 @@ package io.github.xposed.androidspoofer
 import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
+import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.Drawable
+import android.media.MediaDrm
 import android.net.Uri
+import androidx.core.net.toUri
+import com.google.android.gms.ads.identifier.AdvertisingIdClient
+import com.google.android.gms.appset.AppSet
+import com.google.android.gms.tasks.Tasks
+import io.github.xposed.androidspoofer.Constants.PLAYREADY_UUID
 import io.github.xposed.androidspoofer.Constants.PREF_JSON_RO
 import io.github.xposed.androidspoofer.Constants.PREF_JSON_RW
 import io.github.xposed.androidspoofer.Constants.PREF_JSON_RW_CONFIG_APPS_TYPE_ANDROID_ID
 import io.github.xposed.androidspoofer.Constants.PREF_JSON_RW_CONFIG_APPS_TYPE_APPSET_ID
 import io.github.xposed.androidspoofer.Constants.PREF_JSON_RW_CONFIG_APPS_TYPE_DRM_ID
+import io.github.xposed.androidspoofer.Constants.WIDEVINE_UUID
 import org.json.JSONObject
 import java.io.BufferedWriter
 import java.io.ByteArrayOutputStream
@@ -126,6 +134,90 @@ object Utils {
         drawable.setBounds(0, 0, canvas.width, canvas.height)
         drawable.draw(canvas)
         return bitmap
+    }
+
+    /**
+     * Get the Advertising ID from Google Play Services
+     */
+    fun getAdId(context: Context): String {
+        try {
+            val adInfo = AdvertisingIdClient.getAdvertisingIdInfo(context)
+            val adId = adInfo.id
+            if (adId != null) {
+                return adId
+            }
+        } catch (e: Exception) {
+            return "exception"
+        }
+        return "null_id"
+    }
+
+    /**
+     * Get the AppSet ID from Google Play Services
+     */
+    fun getAppsetId(context: Context): String {
+        val client = AppSet.getClient(context)
+        val task = client.appSetIdInfo
+
+        val info = Tasks.await(task)
+        return info.id
+    }
+
+    /**
+     * Get the Google Services Framework ID
+     */
+    fun getGsfId(context: Context): String {
+        fun hasPermission(context: Context, permission: String): Boolean {
+            return context.checkCallingOrSelfPermission(permission) == PackageManager.PERMISSION_GRANTED
+        }
+        val uri = "content://com.google.android.gsf.gservices".toUri()
+        // Check permission
+        if (!hasPermission(context, "com.google.android.providers.gsf.permission.READ_GSERVICES")) {
+            return "no_permission"
+        }
+        // Query the GSF provider with "android_id" key
+        val query = context.contentResolver.query(
+            uri, null, null,
+            arrayOf("android_id"),
+            null
+        )
+        if (query!!.moveToFirst() && query!!.columnCount >= 2) {
+            return java.lang.Long.toHexString(query!!.getString(1).toLong())
+        }
+        return "not_found"
+    }
+    fun getWidevineId(): String {
+        // Get Widevine ID
+        try {
+            val widevineMediaDrm = MediaDrm(WIDEVINE_UUID)
+            try {
+                val widevine_id =
+                    widevineMediaDrm.getPropertyByteArray(MediaDrm.PROPERTY_DEVICE_UNIQUE_ID)
+                return bytesToHex(widevine_id)
+            } finally {
+                widevineMediaDrm.close()
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
+            ""
+        }
+        return ""
+    }
+    fun getPlayreadyId(): String {
+        try {
+            val playreadyMediaDrm = MediaDrm(PLAYREADY_UUID)
+            try {
+                val playready_id =
+                    playreadyMediaDrm.getPropertyByteArray(MediaDrm.PROPERTY_DEVICE_UNIQUE_ID)
+                return bytesToHex(playready_id)
+            } finally {
+                playreadyMediaDrm.close()
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
+            ""
+        }
+        return ""
     }
 
 }

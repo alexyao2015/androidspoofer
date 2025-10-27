@@ -3,13 +3,6 @@ package io.github.xposed.androidspoofer
 import android.content.SharedPreferences
 import android.util.Log
 import io.github.xposed.androidspoofer.Constants.PREF_JSON_RO_APPSLIST
-import io.github.xposed.androidspoofer.Constants.PREF_JSON_RO_UNIQUE_IDS_PLAYREADY_DRM
-import io.github.xposed.androidspoofer.Constants.PREF_JSON_RO_UNIQUE_IDS_WIDEVINE_DRM
-import io.github.xposed.androidspoofer.Constants.PREF_JSON_RO_UNIQUE_IDS
-import io.github.xposed.androidspoofer.Constants.PREF_JSON_RO_UNIQUE_IDS_AD_ID
-import io.github.xposed.androidspoofer.Constants.PREF_JSON_RO_UNIQUE_IDS_ANDROID_ID
-import io.github.xposed.androidspoofer.Constants.PREF_JSON_RO_UNIQUE_IDS_APPSET_ID
-import io.github.xposed.androidspoofer.Constants.PREF_JSON_RO_UNIQUE_IDS_GSF_ID
 import io.github.xposed.androidspoofer.Constants.PREF_JSON_RW_APPPREF
 import io.github.xposed.androidspoofer.Constants.PREF_JSON_RW_APPPREF_LOGGING_ENABLED
 import io.github.xposed.androidspoofer.Constants.PREF_JSON_RW_CONFIG
@@ -48,90 +41,6 @@ class PreferencesManager(private val pref: SharedPreferences) {
         }
         set(value) {
             ro = ro.put(PREF_JSON_RO_APPSLIST, value)
-        }
-    var ro_unique_ids: JSONObject
-        get() {
-            try {
-                return ro.getJSONObject(PREF_JSON_RO_UNIQUE_IDS)
-            } catch (e: JSONException) {
-                Log.e(tag, "Unable to retrieve ro_unique_ids. ro: $ro")
-                return JSONObject("{}")
-            }
-        }
-        set(value) {
-            ro = ro.put(PREF_JSON_RO_UNIQUE_IDS, value)
-        }
-    var ro_unique_id_widevine_drm: String
-        get() {
-            try {
-                return ro_unique_ids.getString(PREF_JSON_RO_UNIQUE_IDS_WIDEVINE_DRM)
-            } catch (e: JSONException) {
-                Log.e(tag, "Unable to retrieve ro_media_drm_unique_id. ro: $ro")
-                return ""
-            }
-        }
-        set(value) {
-            ro_unique_ids = ro_unique_ids.put(PREF_JSON_RO_UNIQUE_IDS_WIDEVINE_DRM, value)
-        }
-    var ro_unique_id_playready_drm: String
-        get() {
-            try {
-                return ro_unique_ids.getString(PREF_JSON_RO_UNIQUE_IDS_PLAYREADY_DRM)
-            } catch (e: JSONException) {
-                Log.e(tag, "Unable to retrieve ro_media_drm_unique_id. ro: $ro")
-                return ""
-            }
-        }
-        set(value) {
-            ro_unique_ids = ro_unique_ids.put(PREF_JSON_RO_UNIQUE_IDS_PLAYREADY_DRM, value)
-        }
-    var ro_unique_id_android_id: String
-        get() {
-            try {
-                return ro_unique_ids.getString(PREF_JSON_RO_UNIQUE_IDS_ANDROID_ID)
-            } catch (e: JSONException) {
-                Log.e(tag, "Unable to retrieve ro_unique_ids. ro: $ro")
-                return ""
-            }
-        }
-        set(value) {
-            ro_unique_ids = ro_unique_ids.put(PREF_JSON_RO_UNIQUE_IDS_ANDROID_ID, value)
-        }
-    var ro_unique_id_gsf_id: String
-        get() {
-            try {
-                return ro_unique_ids.getString(PREF_JSON_RO_UNIQUE_IDS_GSF_ID)
-            } catch (e: JSONException) {
-                Log.e(tag, "Unable to retrieve ro_unique_ids. ro: $ro")
-                return ""
-            }
-        }
-        set(value) {
-            ro_unique_ids = ro_unique_ids.put(PREF_JSON_RO_UNIQUE_IDS_GSF_ID, value)
-        }
-    var ro_unique_id_appset_id: String
-        get() {
-            try {
-                return ro_unique_ids.getString(PREF_JSON_RO_UNIQUE_IDS_APPSET_ID)
-            } catch (e: JSONException) {
-                Log.e(tag, "Unable to retrieve ro_unique_ids. ro: $ro")
-                return ""
-            }
-        }
-        set(value) {
-            ro_unique_ids = ro_unique_ids.put(PREF_JSON_RO_UNIQUE_IDS_APPSET_ID, value)
-        }
-    var ro_unique_id_ad_id: String
-        get() {
-            try {
-                return ro_unique_ids.getString(PREF_JSON_RO_UNIQUE_IDS_AD_ID)
-            } catch (e: JSONException) {
-                Log.e(tag, "Unable to retrieve ro_unique_ids. ro: $ro")
-                return ""
-            }
-        }
-        set(value) {
-            ro_unique_ids = ro_unique_ids.put(PREF_JSON_RO_UNIQUE_IDS_AD_ID, value)
         }
 
     var rw: JSONObject

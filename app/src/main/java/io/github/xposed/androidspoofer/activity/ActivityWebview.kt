@@ -8,7 +8,6 @@ import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.graphics.drawable.Drawable
 import android.media.MediaDrm
-import android.net.Uri
 import android.os.Bundle
 import android.provider.Settings
 import android.util.Base64
@@ -17,17 +16,14 @@ import android.webkit.WebResourceRequest
 import android.webkit.WebResourceResponse
 import android.webkit.WebView
 import android.widget.Toast
-import java.io.ByteArrayOutputStream
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.graphics.scale
 import androidx.webkit.WebViewAssetLoader
 import androidx.webkit.WebViewAssetLoader.AssetsPathHandler
 import androidx.webkit.WebViewClientCompat
-import com.google.android.gms.appset.AppSet
-import com.google.android.gms.appset.AppSetIdClient
-import com.google.android.gms.tasks.Tasks
 import io.github.xposed.androidspoofer.BuildConfig
 import io.github.xposed.androidspoofer.Constants
 import io.github.xposed.androidspoofer.Constants.CONF_EXPORT_NAME
@@ -36,11 +32,8 @@ import io.github.xposed.androidspoofer.Constants.WIDEVINE_UUID
 import io.github.xposed.androidspoofer.PreferencesManager
 import io.github.xposed.androidspoofer.R
 import io.github.xposed.androidspoofer.Utils
-import org.json.JSONArray
 import org.json.JSONObject
-import androidx.core.net.toUri
-import com.google.android.gms.ads.identifier.AdvertisingIdClient
-import androidx.core.graphics.scale
+import java.io.ByteArrayOutputStream
 
 
 class ActivityWebview : AppCompatActivity() {
@@ -169,7 +162,7 @@ class ActivityWebview : AppCompatActivity() {
     private val configOpenLauncher =
         registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
             try {
-                if (it.resultCode == Activity.RESULT_OK) {
+                if (it.resultCode == RESULT_OK) {
                     Utils.readConfigFile(this, it.data!!.data!!, pref!!)
                     Toast.makeText(this, R.string.import_complete, Toast.LENGTH_SHORT).show()
                     restartActivity()
@@ -195,7 +188,12 @@ class ActivityWebview : AppCompatActivity() {
 
     private inner class WebAppInterface(private val context: Context) {
         private val prefManager by lazy {
-            PreferencesManager(pref ?: getSharedPreferences(Constants.SHARED_PREF_FILE_NAME, MODE_PRIVATE))
+            PreferencesManager(
+                pref ?: getSharedPreferences(
+                    Constants.SHARED_PREF_FILE_NAME,
+                    MODE_PRIVATE
+                )
+            )
         }
         private val pm by lazy {
             context.packageManager
@@ -214,76 +212,6 @@ class ActivityWebview : AppCompatActivity() {
             }
         }
 
-        private fun updateUniqueIds() {
-            try {
-                val widevineMediaDrm = MediaDrm(WIDEVINE_UUID)
-                try {
-                    val widevine_id = widevineMediaDrm.getPropertyByteArray(MediaDrm.PROPERTY_DEVICE_UNIQUE_ID)
-                    prefManager.ro_unique_id_widevine_drm = Utils.bytesToHex(widevine_id)
-                } finally {
-                    widevineMediaDrm.close()
-                }
-            } catch (e: Exception) {
-                e.printStackTrace()
-                prefManager.ro_unique_id_widevine_drm = ""
-            }
-
-            try {
-                val playreadyMediaDrm = MediaDrm(PLAYREADY_UUID)
-                try {
-                    val playready_id = playreadyMediaDrm.getPropertyByteArray(MediaDrm.PROPERTY_DEVICE_UNIQUE_ID)
-                    prefManager.ro_unique_id_playready_drm = Utils.bytesToHex(playready_id)
-                } finally {
-                    playreadyMediaDrm.close()
-                }
-            } catch (e: Exception) {
-                e.printStackTrace()
-                prefManager.ro_unique_id_playready_drm = ""
-            }
-            prefManager.ro_unique_id_android_id = Settings.Secure.getString(context.contentResolver, Settings.Secure.ANDROID_ID)
-            prefManager.ro_unique_id_gsf_id = getGsfId(context)
-            prefManager.ro_unique_id_appset_id = getAppsetId()
-            prefManager.ro_unique_id_ad_id = getAdId()
-        }
-        fun getAdId(): String {
-            try {
-                val adInfo = AdvertisingIdClient.getAdvertisingIdInfo(context)
-                val adId = adInfo.id
-                if (adId != null) {
-                    return adId
-                }
-            } catch (e: Exception) {
-                return "exception"
-            }
-            return "null_id"
-        }
-        fun getAppsetId(): String {
-            val client = AppSet.getClient(applicationContext)
-            val task = client.appSetIdInfo
-
-            val info = Tasks.await(task)
-            return info.id
-        }
-        fun getGsfId(context: Context): String {
-            fun hasPermission(context: Context, permission: String): Boolean {
-                return context.checkCallingOrSelfPermission(permission) == PackageManager.PERMISSION_GRANTED
-            }
-            val uri = "content://com.google.android.gsf.gservices".toUri()
-            // Check permission
-            if (!hasPermission(context, "com.google.android.providers.gsf.permission.READ_GSERVICES")) {
-                return "no_permission"
-            }
-            // Query the GSF provider with "android_id" key
-            val query = context.contentResolver.query(
-                uri, null, null,
-                arrayOf("android_id"),
-                null
-            )
-            if (query!!.moveToFirst() && query!!.columnCount >= 2) {
-                return java.lang.Long.toHexString(query!!.getString(1).toLong())
-            }
-            return "not_found"
-        }
 
         @JavascriptInterface
         fun exportPreferences() {
@@ -307,14 +235,15 @@ class ActivityWebview : AppCompatActivity() {
 
         @JavascriptInterface
         fun getUniqueIds(): String {
-            updateUniqueIds()
+
+
             return JSONObject().apply {
-                put("widevineId", prefManager.ro_unique_id_widevine_drm)
-                put("playReadyId", prefManager.ro_unique_id_playready_drm)
-                put("androidId", prefManager.ro_unique_id_android_id)
-                put("gsfId", prefManager.ro_unique_id_gsf_id)
-                put("appsetId", prefManager.ro_unique_id_appset_id)
-                put("adId", prefManager.ro_unique_id_ad_id)
+                put("widevineId", Utils.getWidevineId())
+                put("playReadyId", Utils.getPlayreadyId())
+                put("androidId", Settings.Secure.getString(context.contentResolver, Settings.Secure.ANDROID_ID))
+                put("gsfId", Utils.getGsfId(context))
+                put("appsetId",  Utils.getAppsetId(context))
+                put("adId", Utils.getAdId(context))
             }.toString()
         }
 
@@ -337,17 +266,17 @@ class ActivityWebview : AppCompatActivity() {
         fun getAppIcon(packageName: String): String {
             return try {
                 val icon: Drawable = pm.getApplicationIcon(packageName)
-                
+
                 // Convert to bitmap and scale down to 100x100 for performance
                 val bitmap = Utils.drawableToBitmap(icon)
                 val scaledBitmap = bitmap.scale(100, 100)
-                
+
                 val outputStream = ByteArrayOutputStream()
                 // Use WebP with 80% quality for much better compression
                 scaledBitmap.compress(Bitmap.CompressFormat.WEBP, 80, outputStream)
                 bitmap.recycle()
                 scaledBitmap.recycle()
-                
+
                 val byteArray = outputStream.toByteArray()
                 Base64.encodeToString(byteArray, Base64.NO_WRAP)
             } catch (e: Exception) {
