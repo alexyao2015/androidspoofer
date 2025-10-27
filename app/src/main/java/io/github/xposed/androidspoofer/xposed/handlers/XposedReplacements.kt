@@ -78,6 +78,9 @@ class MediaDrmHook(
         // only change if we are checking for the specific key
         if (wantedKey !== replacementKey) return
 
+        // only change if not null
+        if (param.result == null) return
+
         // convert new value to hex
         val original = bytesToHex(param.result as ByteArray)
 

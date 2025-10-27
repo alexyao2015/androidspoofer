@@ -107,3 +107,4 @@ lint/tmp/
 /app/src/check/assets/webview
 /output
 /cache
+.kotlin
