@@ -4,8 +4,8 @@ import android.content.ContentResolver
 import de.robv.android.xposed.XC_MethodHook
 import de.robv.android.xposed.callbacks.XC_LoadPackage.LoadPackageParam
 import io.github.xposed.androidspoofer.Utils.bytesToHex
-import io.github.xposed.androidspoofer.xposed.XposedUtils.Factory.util
 import io.github.xposed.androidspoofer.Utils.hexToBytes
+import io.github.xposed.androidspoofer.xposed.XposedUtils.Factory.util
 
 class SecureGetString(
     private val lpparam: LoadPackageParam,
@@ -17,11 +17,14 @@ class SecureGetString(
     private val tag = this::class.simpleName
 
     override fun afterHookedMethod(param: MethodHookParam) {
-        val contextResolver = param.args[0] as ContentResolver
+        param.args[0] as ContentResolver
         val wantedKey = param.args[1] as String
         // only change if we are checking for the specific key
         if (wantedKey !== replacementKey) {
-            util.log(tag, "${lpparam.packageName}: Skipped changing $wantedKey because it does not match $replacementKey")
+            util.log(
+                tag,
+                "${lpparam.packageName}: Skipped changing $wantedKey because it does not match $replacementKey"
+            )
             return
         }
 
@@ -41,13 +44,16 @@ class SecureGetStringForUser(
     private val tag = this::class.simpleName
 
     override fun afterHookedMethod(param: MethodHookParam) {
-        val contextResolver = param.args[0] as ContentResolver
+        param.args[0] as ContentResolver
         val wantedKey = param.args[1] as String
-        val userId = param.args[2] as Int
+        param.args[2] as Int
 
         // only change if we are checking for the specific key
         if (wantedKey !== replacementKey) {
-            util.log(tag, "${lpparam.packageName}: Skipped changing $wantedKey because it does not match $replacementKey")
+            util.log(
+                tag,
+                "${lpparam.packageName}: Skipped changing $wantedKey because it does not match $replacementKey"
+            )
             return
         }
 

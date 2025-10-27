@@ -7,7 +7,6 @@ import android.content.pm.ApplicationInfo
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.graphics.drawable.Drawable
-import android.media.MediaDrm
 import android.os.Bundle
 import android.provider.Settings
 import android.util.Base64
@@ -27,8 +26,6 @@ import androidx.webkit.WebViewClientCompat
 import io.github.xposed.androidspoofer.BuildConfig
 import io.github.xposed.androidspoofer.Constants
 import io.github.xposed.androidspoofer.Constants.CONF_EXPORT_NAME
-import io.github.xposed.androidspoofer.Constants.PLAYREADY_UUID
-import io.github.xposed.androidspoofer.Constants.WIDEVINE_UUID
 import io.github.xposed.androidspoofer.PreferencesManager
 import io.github.xposed.androidspoofer.R
 import io.github.xposed.androidspoofer.Utils
@@ -123,7 +120,7 @@ class ActivityWebview : AppCompatActivity() {
     private val configCreateLauncher =
         registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
             try {
-                if (it.resultCode == Activity.RESULT_OK) {
+                if (it.resultCode == RESULT_OK) {
                     Utils.writeConfigFile(this, it.data!!.data!!, pref!!)
                     Toast.makeText(this, R.string.export_complete, Toast.LENGTH_SHORT).show()
                 }
@@ -240,9 +237,12 @@ class ActivityWebview : AppCompatActivity() {
             return JSONObject().apply {
                 put("widevineId", Utils.getWidevineId())
                 put("playReadyId", Utils.getPlayreadyId())
-                put("androidId", Settings.Secure.getString(context.contentResolver, Settings.Secure.ANDROID_ID))
+                put(
+                    "androidId",
+                    Settings.Secure.getString(context.contentResolver, Settings.Secure.ANDROID_ID)
+                )
                 put("gsfId", Utils.getGsfId(context))
-                put("appsetId",  Utils.getAppsetId(context))
+                put("appsetId", Utils.getAppsetId(context))
                 put("adId", Utils.getAdId(context))
             }.toString()
         }

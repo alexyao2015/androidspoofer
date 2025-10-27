@@ -170,6 +170,7 @@ object Utils {
         fun hasPermission(context: Context, permission: String): Boolean {
             return context.checkCallingOrSelfPermission(permission) == PackageManager.PERMISSION_GRANTED
         }
+
         val uri = "content://com.google.android.gsf.gservices".toUri()
         // Check permission
         if (!hasPermission(context, "com.google.android.providers.gsf.permission.READ_GSERVICES")) {
@@ -186,6 +187,7 @@ object Utils {
         }
         return "not_found"
     }
+
     fun getWidevineId(): String {
         // Get Widevine ID
         try {
@@ -203,6 +205,7 @@ object Utils {
         }
         return ""
     }
+
     fun getPlayreadyId(): String {
         try {
             val playreadyMediaDrm = MediaDrm(PLAYREADY_UUID)

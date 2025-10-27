@@ -31,7 +31,11 @@ object XposedConstants {
             )
         }
 
-        fun hookGetStringForUser(lpparam: LoadPackageParam, replacementString: String, newValue: String) {
+        fun hookGetStringForUser(
+            lpparam: LoadPackageParam,
+            replacementString: String,
+            newValue: String
+        ) {
             XposedHelpers.findAndHookMethod(
                 CLASS,
                 FUN.getStringForUser,
@@ -42,6 +46,7 @@ object XposedConstants {
             )
         }
     }
+
     object MediaDrmHook {
         val CLASS = MediaDrm::class.java
 
@@ -49,7 +54,11 @@ object XposedConstants {
             const val getPropertyByteArray = "getPropertyByteArray"
         }
 
-        fun hookGetPropertyByteArray(lpparam: LoadPackageParam, replacementString: String, newValue: String) {
+        fun hookGetPropertyByteArray(
+            lpparam: LoadPackageParam,
+            replacementString: String,
+            newValue: String
+        ) {
             XposedHelpers.findAndHookMethod(
                 CLASS,
                 FUN.getPropertyByteArray,
@@ -58,6 +67,7 @@ object XposedConstants {
             )
         }
     }
+
     object AppsetIdHook {
         val CLASS = AppSetIdInfo::class.java
 
