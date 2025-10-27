@@ -1,22 +1,20 @@
 import { defineStore } from "pinia";
-import { IROPreferences, IRWPreferences } from "../util/types";
-import {
-  getROPreferences,
-  getRWPreferences,
-  setRWPreferences,
-} from "./android";
+import { IRWPreferences } from "../util/types";
+import { getRWPreferences, setRWPreferences, getAppsList } from "./android";
 import pinia from "./pinia";
 
 interface PreferencesStore {
   rwPreferences: IRWPreferences;
-  roPreferences: IROPreferences;
+  appsList: { [appName: string]: string } | null;
+  appsListLoading: boolean;
 }
 
 const usePreferences = defineStore("page", {
   state: (): PreferencesStore => {
     return {
       rwPreferences: getRWPreferences(),
-      roPreferences: getROPreferences(),
+      appsList: null,
+      appsListLoading: false,
     };
   },
   actions: {
@@ -25,7 +23,18 @@ const usePreferences = defineStore("page", {
     },
     reset() {
       this.rwPreferences = getRWPreferences();
-      this.roPreferences = getROPreferences();
+    },
+    async fetchAppsList() {
+      this.appsListLoading = true;
+      try {
+        this.appsList = await new Promise((resolve) => {
+          // Execute the slow Android call asynchronously
+          const result = getAppsList();
+          resolve(result);
+        });
+      } finally {
+        this.appsListLoading = false;
+      }
     },
   },
 });

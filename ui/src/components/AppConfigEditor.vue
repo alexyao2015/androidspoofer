@@ -1,10 +1,11 @@
 <script setup lang="ts">
 import { mdiArrowLeft } from "@mdi/js";
-import { computed, defineAsyncComponent, watch, ref } from "vue";
+import { computed, defineAsyncComponent, onMounted, watch, ref } from "vue";
 import { useRouter } from "vue-router";
 import pref from "../plugins/store";
 import { AppConfigType, appConfigTypeMetadata } from "../util/app_config";
 import { IAppsConfig } from "../util/types";
+import AppIcon from "./AppIcon.vue";
 
 const ConfigItem = defineAsyncComponent(() => import("./ConfigItem.vue"));
 const PreferenceEditor = defineAsyncComponent(
@@ -21,9 +22,20 @@ const props = defineProps<{
   appId: string;
 }>();
 
+// Fetch apps list if not already cached
+onMounted(async () => {
+  if (pref.appsList === null) {
+    await pref.fetchAppsList();
+  }
+});
+
 // Get friendly name for the app
 const appFriendlyName = computed(() => {
-  const appsList = pref.roPreferences.appsList;
+  if (pref.appsList === null) {
+    return props.appId; // Fallback while loading
+  }
+
+  const appsList = pref.appsList;
   // Find the friendly name by searching for the appId in the values
   for (const [friendlyName, packageId] of Object.entries(appsList)) {
     if (packageId === props.appId) {
@@ -93,7 +105,10 @@ const handleRegenerate = (type: AppConfigType) => {
       </v-col>
     </v-row>
 
-    <v-row>
+    <v-row align="center">
+      <v-col cols="auto">
+        <AppIcon :app-id="appId" :app-name="appFriendlyName" />
+      </v-col>
       <v-col>
         <h2 class="text-h5 mb-2">{{ appFriendlyName }}</h2>
         <p class="text-caption text-medium-emphasis">{{ appId }}</p>

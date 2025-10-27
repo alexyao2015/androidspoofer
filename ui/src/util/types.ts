@@ -34,17 +34,14 @@ export interface IAppPreferences {
   loggingEnabled: boolean;
 }
 
-// ro preferences
-export interface IROPreferences {
-  appsList: { [appName: string]: string };
-  uniqueIds: {
-    widevineId: string;
-    playReadyId: string;
-    androidId: string;
-    gsfId: string;
-    appsetId: string;
-    adId: string;
-  };
+// Unique IDs interface
+export interface IUniqueIds {
+  widevineId: string;
+  playReadyId: string;
+  androidId: string;
+  gsfId: string;
+  appsetId: string;
+  adId: string;
 }
 
 // rw preferences
@@ -54,7 +51,8 @@ export interface IRWPreferences {
 }
 
 export interface IAndroidInterface {
-  getROPreferences(): string;
+  getAppsList(): string;
+  getUniqueIds(): string;
   getRWPreferences(): string;
   setRWPreferences(preferences: string): void;
   exportPreferences(): void;

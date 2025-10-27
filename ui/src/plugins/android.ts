@@ -1,9 +1,5 @@
 import { AppConfigType } from "../util/app_config";
-import {
-  IAndroidInterface,
-  IROPreferences,
-  IRWPreferences,
-} from "../util/types";
+import { IAndroidInterface, IUniqueIds, IRWPreferences } from "../util/types";
 
 let AndroidImpl: IAndroidInterface;
 
@@ -13,13 +9,17 @@ try {
 } catch (_error) {
   console.log("Android interface not found");
   let RWPrefs: IRWPreferences;
-  let ROPrefs: IROPreferences;
+  let appsListData: { [appName: string]: string };
+  let uniqueIdsData: IUniqueIds;
+
   // @ts-ignore For testing only
   if (1 == 0) {
     // @ts-ignore For testing only
     RWPrefs = {};
     // @ts-ignore For testing only
-    ROPrefs = {};
+    appsListData = {};
+    // @ts-ignore For testing only
+    uniqueIdsData = {};
   } else {
     RWPrefs = {
       appPref: {
@@ -40,24 +40,23 @@ try {
         ],
       },
     };
-    ROPrefs = {
-      appsList: {
-        "My App 2": "my.app2.io",
-        "My App": "my.app.io",
-      },
-      uniqueIds: {
-        widevineId: "sample_widevine_id_value",
-        playReadyId: "sample_playready_id_value",
-        androidId: "sample_android_id_value",
-        gsfId: "sample_gsf_id_value",
-        appsetId: "sample_appset_id_value",
-        adId: "sample_ad_id_value",
-      },
+    appsListData = {
+      "My App 2": "my.app2.io",
+      "My App": "my.app.io",
+    };
+    uniqueIdsData = {
+      widevineId: "sample_widevine_id_value",
+      playReadyId: "sample_playready_id_value",
+      androidId: "sample_android_id_value",
+      gsfId: "sample_gsf_id_value",
+      appsetId: "sample_appset_id_value",
+      adId: "sample_ad_id_value",
     };
   }
 
   AndroidImpl = {
-    getROPreferences: () => JSON.stringify(ROPrefs),
+    getAppsList: () => JSON.stringify(appsListData),
+    getUniqueIds: () => JSON.stringify(uniqueIdsData),
     getRWPreferences: () => JSON.stringify(RWPrefs),
     setRWPreferences: (preferences: string) =>
       (RWPrefs = JSON.parse(preferences)),
@@ -74,14 +73,19 @@ try {
   };
 }
 
-// one way read from app preferences
-export const getROPreferences = (): IROPreferences => {
-  const roPref = JSON.parse(AndroidImpl.getROPreferences()) as IROPreferences;
-  if (roPref.appsList === undefined) {
-    roPref.appsList = {};
-  }
-  if (roPref.uniqueIds === undefined) {
-    roPref.uniqueIds = {
+// Get apps list from Android
+export const getAppsList = (): { [appName: string]: string } => {
+  const appsList = JSON.parse(AndroidImpl.getAppsList()) as {
+    [appName: string]: string;
+  };
+  return appsList || {};
+};
+
+// Get unique IDs from Android
+export const getUniqueIds = (): IUniqueIds => {
+  const uniqueIds = JSON.parse(AndroidImpl.getUniqueIds()) as IUniqueIds;
+  if (uniqueIds === undefined) {
+    return {
       widevineId: "unknown",
       playReadyId: "unknown",
       androidId: "unknown",
@@ -90,7 +94,7 @@ export const getROPreferences = (): IROPreferences => {
       adId: "unknown",
     };
   }
-  return roPref;
+  return uniqueIds;
 };
 
 export const getRWPreferences = (): IRWPreferences => {

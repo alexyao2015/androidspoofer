@@ -1,6 +1,10 @@
 <script setup lang="ts">
 import { mdiShieldKey } from "@mdi/js";
-import pref from "../plugins/store";
+import { computed } from "vue";
+import { getUniqueIds } from "../plugins/android";
+
+// Get unique IDs from Android each time the component renders
+const uniqueIds = computed(() => getUniqueIds());
 </script>
 
 <template>
@@ -15,7 +19,7 @@ import pref from "../plugins/store";
           <v-col cols="12">
             <v-textarea
               label="Widevine ID"
-              :model-value="pref.roPreferences.uniqueIds.widevineId"
+              :model-value="uniqueIds.widevineId"
               readonly
               variant="outlined"
               density="comfortable"
@@ -28,7 +32,7 @@ import pref from "../plugins/store";
           <v-col cols="12">
             <v-textarea
               label="PlayReady ID"
-              :model-value="pref.roPreferences.uniqueIds.playReadyId"
+              :model-value="uniqueIds.playReadyId"
               readonly
               variant="outlined"
               density="comfortable"
@@ -40,7 +44,7 @@ import pref from "../plugins/store";
           <v-col cols="12">
             <v-textarea
               label="Android ID"
-              :model-value="pref.roPreferences.uniqueIds.androidId"
+              :model-value="uniqueIds.androidId"
               readonly
               variant="outlined"
               density="comfortable"
@@ -52,7 +56,7 @@ import pref from "../plugins/store";
           <v-col cols="12">
             <v-textarea
               label="GSF ID"
-              :model-value="pref.roPreferences.uniqueIds.gsfId"
+              :model-value="uniqueIds.gsfId"
               readonly
               variant="outlined"
               density="comfortable"
@@ -64,7 +68,7 @@ import pref from "../plugins/store";
           <v-col cols="12">
             <v-textarea
               label="Appset ID"
-              :model-value="pref.roPreferences.uniqueIds.appsetId"
+              :model-value="uniqueIds.appsetId"
               readonly
               variant="outlined"
               density="comfortable"
@@ -76,7 +80,7 @@ import pref from "../plugins/store";
           <v-col cols="12">
             <v-textarea
               label="Ad ID"
-              :model-value="pref.roPreferences.uniqueIds.adId"
+              :model-value="uniqueIds.adId"
               readonly
               variant="outlined"
               density="comfortable"

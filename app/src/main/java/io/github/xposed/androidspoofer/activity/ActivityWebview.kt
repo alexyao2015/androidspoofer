@@ -300,10 +300,22 @@ class ActivityWebview : AppCompatActivity() {
         }
 
         @JavascriptInterface
-        fun getROPreferences(): String {
+        fun getAppsList(): String {
             updateAppList()
+            return prefManager.ro_applist.toString()
+        }
+
+        @JavascriptInterface
+        fun getUniqueIds(): String {
             updateUniqueIds()
-            return prefManager.ro.toString()
+            return JSONObject().apply {
+                put("widevineId", prefManager.ro_unique_id_widevine_drm)
+                put("playReadyId", prefManager.ro_unique_id_playready_drm)
+                put("androidId", prefManager.ro_unique_id_android_id)
+                put("gsfId", prefManager.ro_unique_id_gsf_id)
+                put("appsetId", prefManager.ro_unique_id_appset_id)
+                put("adId", prefManager.ro_unique_id_ad_id)
+            }.toString()
         }
 
         @JavascriptInterface
