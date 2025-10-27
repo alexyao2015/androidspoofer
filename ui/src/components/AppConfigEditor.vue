@@ -75,34 +75,6 @@ const allConfigTypes = computed(() => {
 const handleBack = () => {
   router.push({ name: "home" });
 };
-
-const addOrGenerateConfig = (type: AppConfigType) => {
-  pref.rwPreferences.config.apps.push({
-    key: props.appId,
-    value: appConfigTypeMetadata[type].generate(),
-    type: type,
-  });
-};
-
-const clearConfig = (type: AppConfigType) => {
-  const existingConfig = getConfigForType(type);
-  if (existingConfig) {
-    const idx_to_remove =
-      pref.rwPreferences.config.apps.indexOf(existingConfig);
-    pref.rwPreferences.config.apps.splice(idx_to_remove, 1);
-  }
-};
-
-const regenerateConfigValue = (config: IAppsConfig) => {
-  config.value = appConfigTypeMetadata[config.type].generate();
-};
-
-const handleRegenerate = (type: AppConfigType) => {
-  const config = getConfigForType(type);
-  if (config) {
-    regenerateConfigValue(config);
-  }
-};
 </script>
 
 <template>
@@ -133,9 +105,7 @@ const handleRegenerate = (type: AppConfigType) => {
         v-for="configTypeInfo in allConfigTypes"
         :type="configTypeInfo.type"
         :config="configTypeInfo.config"
-        @add="addOrGenerateConfig(configTypeInfo.type)"
-        @clear="clearConfig(configTypeInfo.type)"
-        @regenerate="handleRegenerate(configTypeInfo.type)"
+        :app-id="appId"
       />
 
       <v-divider class="my-4" />

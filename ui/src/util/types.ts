@@ -4,6 +4,7 @@ export interface IAppConfigTypeMeta {
   key: string;
   friendly: string;
   generate: () => string;
+  validate: (value: string) => boolean;
 }
 export interface IAppConfigTypeMetadata {
   android_id: IAppConfigTypeMeta;
