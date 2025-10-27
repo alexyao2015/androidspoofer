@@ -183,7 +183,7 @@ object AppSetIdHook {
      * Intercepts and replaces the AppSetId in the Parcel data
      * Based on the implementation from BinderInterceptorBase
      */
-    private fun interceptAppSetId(dataParcel: Parcel, fakeId: String, lpparam: LoadPackageParam) {
+    private fun interceptAppSetId(dataParcel: Parcel, newId: String, lpparam: LoadPackageParam) {
         val originalPosition = dataParcel.dataPosition()
         
         try {
@@ -202,13 +202,13 @@ object AppSetIdHook {
             val originalId = String(originalBytes, StandardCharsets.UTF_16LE)
             
             // Validate fake ID length
-            if (fakeId.length != originalId.length) {
-                util.log(TAG, "Fake ID length mismatch: ${fakeId.length} != ${originalId.length}")
+            if (newId.length != originalId.length) {
+                util.log(TAG, "Fake ID length mismatch: ${newId.length} != ${originalId.length}")
                 return
             }
             
             // Convert fake ID to bytes
-            val fakeBytes = fakeId.toByteArray(StandardCharsets.UTF_16LE)
+            val fakeBytes = newId.toByteArray(StandardCharsets.UTF_16LE)
             
             if (fakeBytes.size != originalBytes.size) {
                 util.log(TAG, "Byte size mismatch: ${fakeBytes.size} != ${originalBytes.size}")
@@ -223,7 +223,7 @@ object AppSetIdHook {
             dataParcel.unmarshall(newBytes, 0, newBytes.size)
             dataParcel.setDataPosition(0)
             
-            util.log(TAG, "${lpparam.packageName}: Successfully replaced AppSetId: $originalId -> $fakeId")
+            util.log(TAG, "${lpparam.packageName}: Successfully replaced AppSetId: $originalId -> $newId")
             
         } catch (e: Exception) {
             util.log(TAG, "Error during AppSetId interception: ${e.message}")

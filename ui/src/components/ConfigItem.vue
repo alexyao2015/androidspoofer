@@ -49,7 +49,7 @@ const handleRegenerate = () => {
 <template>
   <v-row class="mb-2">
     <v-col cols="7">
-      <v-text-field
+      <v-textarea
         v-if="config"
         v-model="config.value"
         :label="appConfigTypeMetadata[type].friendly"
@@ -58,9 +58,11 @@ const handleRegenerate = () => {
         hide-details="auto"
         :rules="[validateValue]"
         variant="filled"
+        auto-grow
+        rows="1"
       >
-      </v-text-field>
-      <v-text-field
+      </v-textarea>
+      <v-textarea
         v-else
         :label="appConfigTypeMetadata[type].friendly"
         :model-value="''"
@@ -68,17 +70,19 @@ const handleRegenerate = () => {
         disabled
         hide-details="auto"
         variant="outlined"
+        auto-grow
+        rows="1"
       >
-      </v-text-field>
+      </v-textarea>
     </v-col>
-    <v-col cols="4">
+    <v-col cols="4" class="d-flex align-stretch">
       <!-- If config exists: show clear and regenerate buttons side by side -->
       <template v-if="config">
-        <div class="d-flex ga-1">
+        <div class="d-flex ga-1" style="width: 100%">
           <v-btn
             @click="handleClear"
             color="warning"
-            style="height: 56px; min-width: 48px; flex: 1"
+            style="min-width: 48px; flex: 1; height: 100%"
             title="Clear configuration"
             size="small"
           >
@@ -86,7 +90,7 @@ const handleRegenerate = () => {
           </v-btn>
           <v-btn
             @click="handleRegenerate"
-            style="height: 56px; min-width: 48px; flex: 1"
+            style="min-width: 48px; flex: 1; height: 100%"
             title="Regenerate value"
             size="small"
           >
@@ -99,7 +103,7 @@ const handleRegenerate = () => {
         <v-btn
           @click="handleAdd"
           color="primary"
-          style="height: 56px; min-width: 48px; width: 100%"
+          style="min-width: 48px; width: 100%; height: 100%"
           title="Add configuration"
           size="small"
         >
