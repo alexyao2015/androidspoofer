@@ -1,5 +1,14 @@
 <script setup lang="ts">
-import { computed, defineAsyncComponent, onMounted, ref, Ref } from "vue";
+import {
+  computed,
+  defineAsyncComponent,
+  onMounted,
+  onUnmounted,
+  ref,
+  Ref,
+  watch,
+  nextTick,
+} from "vue";
 import { useRouter } from "vue-router";
 import pref from "../plugins/store";
 import AppIcon from "./AppIcon.vue";
@@ -12,9 +21,41 @@ const router = useRouter();
 
 const searchFieldAppsList: Ref<null | string> = ref(null);
 const showOnlyConfigured = ref(false);
+const displayCount = ref(80); // Start with 80 apps
+const LOAD_INCREMENT = 80; // Load 80 more each time
+const loadMoreTrigger = ref<HTMLElement | null>(null);
+let observer: IntersectionObserver | null = null;
+
+// Setup intersection observer for infinite scroll
+const setupObserver = () => {
+  if (observer) {
+    observer.disconnect();
+  }
+
+  observer = new IntersectionObserver(
+    (entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          // Load more items when trigger comes into view
+          if (displayCount.value < appsWithConfigCounts.value.length) {
+            displayCount.value += LOAD_INCREMENT;
+          }
+        }
+      });
+    },
+    { threshold: 0.1 }
+  );
+
+  if (loadMoreTrigger.value) {
+    observer.observe(loadMoreTrigger.value);
+  }
+};
 
 // Fetch apps list on mount
 onMounted(async () => {
+  // Allow component to render first so loading spinner shows
+  await nextTick();
+
   if (pref.appsList === null) {
     // First time: wait for the data
     await pref.fetchAppsList();
@@ -22,16 +63,26 @@ onMounted(async () => {
     // Already have data: refresh in background without blocking UI
     pref.fetchAppsList();
   }
+
+  // Setup observer after data is loaded
+  await nextTick();
+  setupObserver();
 });
 
-// Get list of app IDs with existing configs count
+onUnmounted(() => {
+  if (observer) {
+    observer.disconnect();
+  }
+});
+
+// Get full list of app IDs with existing configs count
 const appsWithConfigCounts = computed(() => {
-  // Return empty array while loading for the first time
-  if (pref.appsList === null) {
+  // Return empty array while loading or not yet loaded
+  if (pref.appsList === null || pref.appsListLoading) {
     return [];
   }
 
-  const apps_list = pref.appsList;
+  const apps_list = pref.appsList as { [appName: string]: string };
   const search = searchFieldAppsList.value;
 
   // Convert object to array of {appName, appId} entries
@@ -68,6 +119,24 @@ const appsWithConfigCounts = computed(() => {
   return appsWithCounts;
 });
 
+// Displayed apps using infinite scroll
+const displayedApps = computed(() => {
+  return appsWithConfigCounts.value.slice(0, displayCount.value);
+});
+
+// Reset display count when search or filter changes, then re-setup observer
+watch([searchFieldAppsList, showOnlyConfigured], async () => {
+  displayCount.value = LOAD_INCREMENT;
+  await nextTick();
+  setupObserver();
+});
+
+// Watch for changes to displayedApps and re-setup observer
+watch(displayedApps, async () => {
+  await nextTick();
+  setupObserver();
+});
+
 const handleSelectApp = (appId: string) => {
   router.push({ name: "appConfig", params: { appId } });
 };
@@ -91,10 +160,7 @@ const handleSelectApp = (appId: string) => {
     ></v-checkbox>
 
     <!-- Loading spinner for first load -->
-    <div
-      v-if="pref.appsListLoading && pref.appsList === null"
-      class="text-center py-8"
-    >
+    <div v-if="pref.appsListLoading" class="text-center py-8">
       <v-progress-circular
         indeterminate
         color="primary"
@@ -106,7 +172,7 @@ const handleSelectApp = (appId: string) => {
     <!-- Apps list -->
     <v-list v-else>
       <v-list-item
-        v-for="appInfo in appsWithConfigCounts"
+        v-for="appInfo in displayedApps"
         :key="appInfo.appId"
         @click="handleSelectApp(appInfo.appId)"
         class="mb-2"
@@ -130,6 +196,18 @@ const handleSelectApp = (appId: string) => {
         </template>
       </v-list-item>
     </v-list>
+
+    <!-- Intersection observer target for infinite scroll -->
+    <div
+      v-if="
+        !pref.appsListLoading &&
+        displayedApps.length < appsWithConfigCounts.length
+      "
+      ref="loadMoreTrigger"
+      class="py-4 text-center"
+    >
+      <v-progress-circular indeterminate size="32"></v-progress-circular>
+    </div>
 
     <v-alert
       v-if="!pref.appsListLoading && appsWithConfigCounts.length === 0"

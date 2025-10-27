@@ -1,6 +1,13 @@
 <script setup lang="ts">
 import { mdiArrowLeft } from "@mdi/js";
-import { computed, defineAsyncComponent, onMounted, watch, ref } from "vue";
+import {
+  computed,
+  defineAsyncComponent,
+  onMounted,
+  nextTick,
+  watch,
+  ref,
+} from "vue";
 import { useRouter } from "vue-router";
 import pref from "../plugins/store";
 import { AppConfigType, appConfigTypeMetadata } from "../util/app_config";
@@ -24,6 +31,9 @@ const props = defineProps<{
 
 // Fetch apps list if not already cached
 onMounted(async () => {
+  // Allow component to render first
+  await nextTick();
+
   if (pref.appsList === null) {
     await pref.fetchAppsList();
   }

@@ -1,10 +1,38 @@
 <script setup lang="ts">
 import { mdiShieldKey } from "@mdi/js";
-import { computed } from "vue";
-import { getUniqueIds } from "../plugins/android";
+import { computed, onMounted, nextTick } from "vue";
+import pref from "../plugins/store";
+import { IUniqueIds } from "../util/types";
 
-// Get unique IDs from Android each time the component renders
-const uniqueIds = computed(() => getUniqueIds());
+// Fetch unique IDs on mount
+onMounted(async () => {
+  // Allow component to render first so loading spinner shows
+  await nextTick();
+
+  if (pref.uniqueIds === null) {
+    // First time: wait for the data
+    await pref.fetchUniqueIds();
+  } else {
+    // Already have data: refresh in background without blocking UI
+    void pref.fetchUniqueIds();
+  }
+});
+
+// Use cached unique IDs from store
+const uniqueIds = computed(() => {
+  // Return empty strings while loading or if data is null
+  if (pref.uniqueIds === null || pref.uniqueIdsLoading) {
+    return {
+      widevineId: "",
+      playReadyId: "",
+      androidId: "",
+      gsfId: "",
+      appsetId: "",
+      adId: "",
+    };
+  }
+  return pref.uniqueIds as IUniqueIds;
+});
 </script>
 
 <template>
@@ -15,7 +43,18 @@ const uniqueIds = computed(() => getUniqueIds());
         Device IDs
       </v-card-title>
       <v-card-text>
-        <v-row>
+        <!-- Loading spinner for first load -->
+        <div v-if="pref.uniqueIdsLoading" class="text-center py-8">
+          <v-progress-circular
+            indeterminate
+            color="primary"
+            size="64"
+          ></v-progress-circular>
+          <p class="mt-4 text-medium-emphasis">Loading device IDs...</p>
+        </div>
+
+        <!-- Unique IDs content -->
+        <v-row v-else>
           <v-col cols="12">
             <v-textarea
               label="Widevine ID"

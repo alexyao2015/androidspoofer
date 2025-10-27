@@ -83,18 +83,7 @@ export const getAppsList = (): { [appName: string]: string } => {
 
 // Get unique IDs from Android
 export const getUniqueIds = (): IUniqueIds => {
-  const uniqueIds = JSON.parse(AndroidImpl.getUniqueIds()) as IUniqueIds;
-  if (uniqueIds === undefined) {
-    return {
-      widevineId: "unknown",
-      playReadyId: "unknown",
-      androidId: "unknown",
-      gsfId: "unknown",
-      appsetId: "unknown",
-      adId: "unknown",
-    };
-  }
-  return uniqueIds;
+  return JSON.parse(AndroidImpl.getUniqueIds()) as IUniqueIds;
 };
 
 export const getRWPreferences = (): IRWPreferences => {
