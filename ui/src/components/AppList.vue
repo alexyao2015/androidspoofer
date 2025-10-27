@@ -11,7 +11,7 @@ const SaveResetButtons = defineAsyncComponent(
 const router = useRouter();
 
 const searchFieldAppsList: Ref<null | string> = ref(null);
-const showOnlyConfigured = ref(false);
+const showOnlyConfigured = ref(true);
 
 // Get list of app IDs with existing configs count
 const appsWithConfigCounts = computed(() => {
