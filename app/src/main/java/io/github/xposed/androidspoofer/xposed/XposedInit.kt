@@ -10,6 +10,9 @@ import io.github.xposed.androidspoofer.Constants
 import io.github.xposed.androidspoofer.PreferencesManager
 import io.github.xposed.androidspoofer.Utils
 import io.github.xposed.androidspoofer.xposed.XposedUtils.Factory.util
+import io.github.xposed.androidspoofer.xposed.handlers.AppSetIdHook
+import io.github.xposed.androidspoofer.xposed.handlers.MediaDrmHook
+import io.github.xposed.androidspoofer.xposed.handlers.SecureSettingsHook
 
 class XposedInit : IXposedHookLoadPackage {
     private val tag = "XposedInit"
@@ -26,14 +29,15 @@ class XposedInit : IXposedHookLoadPackage {
 
     override fun handleLoadPackage(lpparam: XC_LoadPackage.LoadPackageParam) {
         for (conf in prefManager.rw_config_apps) {
+            if (!lpparam.packageName.equals(conf.key)) continue
+
             if (conf.type == Utils.ConfigAppsType.ANDROID_ID) {
-                if (!lpparam.packageName.equals(conf.key)) continue
-                XposedConstants.SecureSettings.hookGetString(
+                SecureSettingsHook.hookGetString(
                     lpparam,
                     Settings.Secure.ANDROID_ID,
                     conf.value
                 )
-                XposedConstants.SecureSettings.hookGetStringForUser(
+                SecureSettingsHook.hookGetStringForUser(
                     lpparam,
                     Settings.Secure.ANDROID_ID,
                     conf.value
@@ -41,8 +45,7 @@ class XposedInit : IXposedHookLoadPackage {
                 util.log(tag, "${conf.type} hooked in ${lpparam.packageName}")
             }
             if (conf.type == Utils.ConfigAppsType.DRM_ID) {
-                if (!lpparam.packageName.equals(conf.key)) continue
-                XposedConstants.MediaDrmHook.hookGetPropertyByteArray(
+                MediaDrmHook.hookGetPropertyByteArray(
                     lpparam,
                     MediaDrm.PROPERTY_DEVICE_UNIQUE_ID,
                     conf.value
@@ -50,8 +53,9 @@ class XposedInit : IXposedHookLoadPackage {
                 util.log(tag, "${conf.type} hooked in ${lpparam.packageName}")
             }
             if (conf.type == Utils.ConfigAppsType.APPSET_ID) {
-                XposedConstants.AppsetIdHook.hookGetPropertyByteArray(
-                    lpparam, conf.value
+                AppSetIdHook.hookBinderTransact(
+                    lpparam,
+                    conf.value
                 )
                 util.log(tag, "${conf.type} hooked in ${lpparam.packageName}")
             }
