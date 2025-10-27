@@ -5,15 +5,19 @@ import android.content.Context
 import android.content.Intent
 import android.content.pm.ApplicationInfo
 import android.content.pm.PackageManager
+import android.graphics.Bitmap
+import android.graphics.drawable.Drawable
 import android.media.MediaDrm
 import android.net.Uri
 import android.os.Bundle
 import android.provider.Settings
+import android.util.Base64
 import android.webkit.JavascriptInterface
 import android.webkit.WebResourceRequest
 import android.webkit.WebResourceResponse
 import android.webkit.WebView
 import android.widget.Toast
+import java.io.ByteArrayOutputStream
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
@@ -309,6 +313,26 @@ class ActivityWebview : AppCompatActivity() {
         @JavascriptInterface
         fun setRWPreferences(value: String) {
             prefManager.rw = JSONObject(value)
+        }
+
+        /**
+         * Get the app icon for a given package name as a base64 encoded string.
+         * @param packageName The package name of the app
+         * @return Base64 encoded PNG image string, or empty string if app not found
+         */
+        @JavascriptInterface
+        fun getAppIcon(packageName: String): String {
+            return try {
+                val icon: Drawable = pm.getApplicationIcon(packageName)
+                val bitmap = Utils.drawableToBitmap(icon)
+                val outputStream = ByteArrayOutputStream()
+                bitmap.compress(Bitmap.CompressFormat.PNG, 100, outputStream)
+                val byteArray = outputStream.toByteArray()
+                Base64.encodeToString(byteArray, Base64.NO_WRAP)
+            } catch (e: Exception) {
+                e.printStackTrace()
+                ""
+            }
         }
     }
 }

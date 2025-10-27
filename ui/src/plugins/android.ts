@@ -67,6 +67,10 @@ try {
     importPreferences: () => {
       console.log("import preferences");
     },
+    getAppIcon: (packageName: string) => {
+      console.log("getAppIcon called for:", packageName);
+      return ""; // Return empty string for web testing
+    },
   };
 }
 
@@ -115,4 +119,8 @@ export const exportPreferences = () => {
 
 export const importPreferences = () => {
   AndroidImpl.importPreferences();
+};
+
+export const getAppIcon = (packageName: string): string => {
+  return AndroidImpl.getAppIcon(packageName);
 };

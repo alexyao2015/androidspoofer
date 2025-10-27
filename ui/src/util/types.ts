@@ -59,4 +59,5 @@ export interface IAndroidInterface {
   setRWPreferences(preferences: string): void;
   exportPreferences(): void;
   importPreferences(): void;
+  getAppIcon(packageName: string): string;
 }

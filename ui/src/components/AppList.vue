@@ -3,6 +3,7 @@ import { mdiChevronRight } from "@mdi/js";
 import { computed, defineAsyncComponent, ref, Ref } from "vue";
 import { useRouter } from "vue-router";
 import pref from "../plugins/store";
+import { getAppIcon } from "../plugins/android";
 
 const SaveResetButtons = defineAsyncComponent(
   () => import("./SaveResetButtons.vue")
@@ -13,7 +14,7 @@ const router = useRouter();
 const searchFieldAppsList: Ref<null | string> = ref(null);
 const showOnlyConfigured = ref(false);
 
-// Get list of app IDs with existing configs count
+// Get list of app IDs with existing configs count and icons
 const appsWithConfigCounts = computed(() => {
   const apps_list = pref.roPreferences.appsList;
   const search = searchFieldAppsList.value;
@@ -36,20 +37,32 @@ const appsWithConfigCounts = computed(() => {
   // Sort by app name
   appEntries.sort((a, b) => a.appName.localeCompare(b.appName));
 
-  // Map to include config counts
-  const appsWithCounts = appEntries.map(({ appName, appId }) => {
+  // Map to include config counts and icons
+  const appsWithCountsAndIcons = appEntries.map(({ appName, appId }) => {
     const count = pref.rwPreferences.config.apps.filter(
       (c) => c.key === appId
     ).length;
-    return { appName, appId, count };
+
+    // Fetch the app icon
+    let iconDataUrl = "";
+    try {
+      const iconBase64 = getAppIcon(appId);
+      if (iconBase64) {
+        iconDataUrl = `data:image/png;base64,${iconBase64}`;
+      }
+    } catch (e) {
+      console.error(`Failed to get icon for ${appId}:`, e);
+    }
+
+    return { appName, appId, count, iconDataUrl };
   });
 
   // Apply configured filter
   if (showOnlyConfigured.value) {
-    return appsWithCounts.filter((app) => app.count > 0);
+    return appsWithCountsAndIcons.filter((app) => app.count > 0);
   }
 
-  return appsWithCounts;
+  return appsWithCountsAndIcons;
 });
 
 const handleSelectApp = (appId: string) => {
@@ -87,7 +100,10 @@ const handleSelectApp = (appId: string) => {
         "
       >
         <template v-slot:prepend>
-          <v-icon :icon="mdiChevronRight" size="small"></v-icon>
+          <v-avatar v-if="appInfo.iconDataUrl" size="40" class="mr-2">
+            <v-img :src="appInfo.iconDataUrl" :alt="appInfo.appName"></v-img>
+          </v-avatar>
+          <v-icon v-else :icon="mdiChevronRight" size="small"></v-icon>
         </template>
         <v-list-item-title>{{ appInfo.appName }}</v-list-item-title>
         <v-list-item-subtitle class="text-caption">{{
