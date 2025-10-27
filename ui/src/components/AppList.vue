@@ -1,12 +1,5 @@
 <script setup lang="ts">
-import {
-  computed,
-  defineAsyncComponent,
-  onMounted,
-  ref,
-  Ref,
-  nextTick,
-} from "vue";
+import { computed, defineAsyncComponent, ref, Ref } from "vue";
 import { useRouter } from "vue-router";
 import pref from "../plugins/store";
 import AppIcon from "./AppIcon.vue";
@@ -20,24 +13,15 @@ const router = useRouter();
 const searchFieldAppsList: Ref<null | string> = ref(null);
 const showOnlyConfigured = ref(false);
 
-// Fetch apps list on mount
-onMounted(async () => {
-  // Allow component to render first so loading spinner shows
-  await nextTick();
-
-  if (pref.appsList === null) {
-    // First time: wait for the data
-    await pref.fetchAppsList();
-  } else {
-    // Already have data: refresh in background without blocking UI
-    pref.fetchAppsList();
-  }
-});
-
 // Get list of app IDs with existing configs count
 const appsWithConfigCounts = computed(() => {
-  // Return empty array while loading or not yet loaded
-  if (pref.appsList === null || pref.appsListLoading) {
+  // Fetch data if not already loaded
+  if (pref.appsList === null) {
+    pref.fetchAppsList();
+  }
+
+  // Return empty array while not yet loaded
+  if (pref.appsList === null) {
     return [];
   }
 
@@ -100,18 +84,8 @@ const handleSelectApp = (appId: string) => {
       class="mb-4"
     ></v-checkbox>
 
-    <!-- Loading spinner for first load -->
-    <div v-if="pref.appsListLoading" class="text-center py-8">
-      <v-progress-circular
-        indeterminate
-        color="primary"
-        size="64"
-      ></v-progress-circular>
-      <p class="mt-4 text-medium-emphasis">Loading apps list...</p>
-    </div>
-
     <!-- Apps list -->
-    <v-list v-else>
+    <v-list>
       <v-list-item
         v-for="appInfo in appsWithConfigCounts"
         :key="appInfo.appId"
@@ -138,11 +112,7 @@ const handleSelectApp = (appId: string) => {
       </v-list-item>
     </v-list>
 
-    <v-alert
-      v-if="!pref.appsListLoading && appsWithConfigCounts.length === 0"
-      type="info"
-      class="mt-4"
-    >
+    <v-alert v-if="appsWithConfigCounts.length === 0" type="info" class="mt-4">
       No apps found
     </v-alert>
 

@@ -1,27 +1,18 @@
 <script setup lang="ts">
 import { mdiShieldKey } from "@mdi/js";
-import { computed, onMounted, nextTick } from "vue";
+import { computed } from "vue";
 import pref from "../plugins/store";
 import { IUniqueIds } from "../util/types";
 
-// Fetch unique IDs on mount
-onMounted(async () => {
-  // Allow component to render first so loading spinner shows
-  await nextTick();
-
-  if (pref.uniqueIds === null) {
-    // First time: wait for the data
-    await pref.fetchUniqueIds();
-  } else {
-    // Already have data: refresh in background without blocking UI
-    void pref.fetchUniqueIds();
-  }
-});
-
 // Use cached unique IDs from store
 const uniqueIds = computed(() => {
-  // Return empty strings while loading or if data is null
-  if (pref.uniqueIds === null || pref.uniqueIdsLoading) {
+  // Fetch data if not already loaded
+  if (pref.uniqueIds === null) {
+    pref.fetchUniqueIds();
+  }
+
+  // Return empty strings if data is null
+  if (pref.uniqueIds === null) {
     return {
       widevineId: "",
       playReadyId: "",
@@ -43,18 +34,8 @@ const uniqueIds = computed(() => {
         Device IDs
       </v-card-title>
       <v-card-text>
-        <!-- Loading spinner for first load -->
-        <div v-if="pref.uniqueIdsLoading" class="text-center py-8">
-          <v-progress-circular
-            indeterminate
-            color="primary"
-            size="64"
-          ></v-progress-circular>
-          <p class="mt-4 text-medium-emphasis">Loading device IDs...</p>
-        </div>
-
         <!-- Unique IDs content -->
-        <v-row v-else>
+        <v-row>
           <v-col cols="12">
             <v-textarea
               label="Widevine ID"
