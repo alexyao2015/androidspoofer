@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { mdiContentSave, mdiDelete, mdiDownload } from "@mdi/js";
+import { mdiContentSave, mdiDelete, mdiDownload, mdiPencil } from "@mdi/js";
 import { computed, ref } from "vue";
 import pref from "../plugins/store";
 import { AppConfigType } from "../util/app_config";
@@ -29,6 +29,9 @@ const appProfiles = computed(() => {
 const showSaveDialog = ref(false);
 const newProfileName = ref("");
 const selectedProfile = ref<string | null>(null);
+const showRenameDialog = ref(false);
+const renameProfileName = ref("");
+const profileToRename = ref<IAppProfile | null>(null);
 
 // Generate default profile name with date and time
 const generateDefaultProfileName = () => {
@@ -124,6 +127,30 @@ const deleteProfile = (profile: IAppProfile) => {
     selectedProfile.value = null;
   }
 };
+
+// Open rename dialog
+const openRenameDialog = (profile: IAppProfile) => {
+  profileToRename.value = profile;
+  renameProfileName.value = profile.name;
+  showRenameDialog.value = true;
+};
+
+// Rename a profile
+const renameProfile = () => {
+  if (!renameProfileName.value.trim() || !profileToRename.value) return;
+
+  profileToRename.value.name = renameProfileName.value.trim();
+
+  // Update selected profile name if needed
+  if (selectedProfile.value === profileToRename.value.name) {
+    selectedProfile.value = renameProfileName.value.trim();
+  }
+
+  // Reset dialog
+  renameProfileName.value = "";
+  profileToRename.value = null;
+  showRenameDialog.value = false;
+};
 </script>
 
 <template>
@@ -168,6 +195,14 @@ const deleteProfile = (profile: IAppProfile) => {
                 class="mr-2"
               >
                 Load
+              </v-btn>
+              <v-btn
+                @click="openRenameDialog(profile)"
+                :icon="mdiPencil"
+                size="small"
+                variant="text"
+                class="mr-2"
+              >
               </v-btn>
               <v-btn
                 @click="deleteProfile(profile)"
@@ -224,6 +259,32 @@ const deleteProfile = (profile: IAppProfile) => {
             :disabled="!newProfileName.trim()"
           >
             Save
+          </v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
+
+    <!-- Rename Profile Dialog -->
+    <v-dialog v-model="showRenameDialog" max-width="500px">
+      <v-card>
+        <v-card-title>Rename Profile</v-card-title>
+        <v-card-text>
+          <v-text-field
+            v-model="renameProfileName"
+            label="Profile Name"
+            autofocus
+            @keyup.enter="renameProfile"
+          ></v-text-field>
+        </v-card-text>
+        <v-card-actions>
+          <v-spacer></v-spacer>
+          <v-btn @click="showRenameDialog = false">Cancel</v-btn>
+          <v-btn
+            @click="renameProfile"
+            color="primary"
+            :disabled="!renameProfileName.trim()"
+          >
+            Rename
           </v-btn>
         </v-card-actions>
       </v-card>

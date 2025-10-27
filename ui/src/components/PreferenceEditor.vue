@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { defineAsyncComponent, onMounted, ref, Ref } from "vue";
-import { onBeforeRouteLeave } from "vue-router";
 import pref from "../plugins/store";
 const Snackbar = defineAsyncComponent(
   () => import("../components/Snackbar.vue")
@@ -11,11 +10,6 @@ const valid = ref(true);
 
 onMounted(() => {
   form.value?.validate();
-});
-
-onBeforeRouteLeave((_to, _from, next) => {
-  pref.reset();
-  next();
 });
 
 const snackbarMessage = ref("");

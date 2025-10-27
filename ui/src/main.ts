@@ -11,3 +11,14 @@ app.use(router);
 app.use(pinia);
 
 app.mount("#app");
+
+// Handle Android back button
+(window as any).handleAndroidBack = () => {
+  // Check if we can go back in Vue Router history
+  if (router.options.history.state.back) {
+    router.back();
+    return true;
+  }
+  // Let Android handle it (exit app)
+  return false;
+};

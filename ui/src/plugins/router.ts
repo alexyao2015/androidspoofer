@@ -1,5 +1,6 @@
 import { createRouter, createWebHashHistory, type Router } from "vue-router";
-import AppsConfig from "../pages/AppsConfig.vue";
+import AppList from "../components/AppList.vue";
+import AppConfigEditor from "../components/AppConfigEditor.vue";
 import Options from "../pages/Options.vue";
 import Info from "../pages/Info.vue";
 
@@ -15,7 +16,13 @@ const routes = isCheckFlavor
       },
     ]
   : [
-      { name: "home", path: "/", component: AppsConfig, props: true },
+      { name: "home", path: "/", component: AppList, props: true },
+      {
+        name: "appConfig",
+        path: "/app/:appId",
+        component: AppConfigEditor,
+        props: true,
+      },
       {
         name: "options",
         path: "/options",

@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { mdiArrowLeft } from "@mdi/js";
 import { computed, defineAsyncComponent, watch, ref } from "vue";
+import { useRouter } from "vue-router";
 import pref from "../plugins/store";
 import { AppConfigType, appConfigTypeMetadata } from "../util/app_config";
 import { IAppsConfig } from "../util/types";
@@ -13,14 +14,11 @@ const ProfileManager = defineAsyncComponent(
   () => import("./ProfileManager.vue")
 );
 
+const router = useRouter();
+
 // Define props
 const props = defineProps<{
   appId: string;
-}>();
-
-// Define emits
-const emit = defineEmits<{
-  back: [];
 }>();
 
 // Get friendly name for the app
@@ -53,7 +51,7 @@ const allConfigTypes = computed(() => {
 });
 
 const handleBack = () => {
-  emit("back");
+  router.push({ name: "home" });
 };
 
 const addOrGenerateConfig = (type: AppConfigType) => {

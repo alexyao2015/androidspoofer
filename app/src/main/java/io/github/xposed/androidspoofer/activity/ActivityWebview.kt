@@ -55,10 +55,17 @@ class ActivityWebview : AppCompatActivity() {
     }
 
     override fun onBackPressed() {
-        if (webview.canGoBack()) {
-            webview.goBack()
-        } else {
-            super.onBackPressed()
+        // First try to let the Vue app handle the back navigation
+        webview.evaluateJavascript("(function() { try { return window.handleAndroidBack ? window.handleAndroidBack() : false; } catch(e) { return false; } })()") { result ->
+            // If the Vue app didn't handle it (returned false/null), check WebView history
+            if (result == "false" || result == "null") {
+                if (webview.canGoBack()) {
+                    webview.goBack()
+                } else {
+                    super.onBackPressed()
+                }
+            }
+            // If result is "true", the Vue app handled it, so do nothing
         }
     }
 

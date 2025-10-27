@@ -1,16 +1,14 @@
 <script setup lang="ts">
 import { mdiChevronRight } from "@mdi/js";
 import { computed, defineAsyncComponent, ref, Ref } from "vue";
+import { useRouter } from "vue-router";
 import pref from "../plugins/store";
 
 const SaveResetButtons = defineAsyncComponent(
   () => import("./SaveResetButtons.vue")
 );
 
-// Define emits
-const emit = defineEmits<{
-  selectApp: [appId: string];
-}>();
+const router = useRouter();
 
 const searchFieldAppsList: Ref<null | string> = ref(null);
 const showOnlyConfigured = ref(false);
@@ -55,7 +53,7 @@ const appsWithConfigCounts = computed(() => {
 });
 
 const handleSelectApp = (appId: string) => {
-  emit("selectApp", appId);
+  router.push({ name: "appConfig", params: { appId } });
 };
 </script>
 
