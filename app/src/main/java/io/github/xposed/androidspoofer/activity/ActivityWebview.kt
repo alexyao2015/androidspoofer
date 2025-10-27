@@ -14,6 +14,7 @@ import android.webkit.WebResourceRequest
 import android.webkit.WebResourceResponse
 import android.webkit.WebView
 import android.widget.Toast
+import androidx.activity.OnBackPressedCallback
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
@@ -44,28 +45,7 @@ class ActivityWebview : AppCompatActivity() {
         try {
             getSharedPreferences(Constants.SHARED_PREF_FILE_NAME, MODE_WORLD_READABLE)
         } catch (_: Exception) {
-            // For check variant, fall back to MODE_PRIVATE to allow viewing device IDs
-            // even when Xposed module is not enabled
-            if (BuildConfig.IS_CHECK_VARIANT) {
-                getSharedPreferences(Constants.SHARED_PREF_FILE_NAME, MODE_PRIVATE)
-            } else {
-                null
-            }
-        }
-    }
-
-    override fun onBackPressed() {
-        // First try to let the Vue app handle the back navigation
-        webview.evaluateJavascript("(function() { try { return window.handleAndroidBack ? window.handleAndroidBack() : false; } catch(e) { return false; } })()") { result ->
-            // If the Vue app didn't handle it (returned false/null), check WebView history
-            if (result == "false" || result == "null") {
-                if (webview.canGoBack()) {
-                    webview.goBack()
-                } else {
-                    super.onBackPressed()
-                }
-            }
-            // If result is "true", the Vue app handled it, so do nothing
+            null
         }
     }
 
@@ -92,6 +72,29 @@ class ActivityWebview : AppCompatActivity() {
         webview.settings.loadsImagesAutomatically = true
         webview.addJavascriptInterface(WebAppInterface(this), "Android")
         webview.loadUrl("https://appassets.androidplatform.net/assets/webview/index.html")
+
+        // Handle back button with modern API
+        onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                // Try to let the Vue app handle the back navigation
+                webview.evaluateJavascript(
+                    "(function() { try { return window.handleAndroidBack ? window.handleAndroidBack() : false; } catch(e) { return false; } })()"
+                ) { result ->
+                    // If the Vue app didn't handle it (returned false/null), check WebView history or exit
+                    if (result == "false" || result == "null") {
+                        if (webview.canGoBack()) {
+                            webview.goBack()
+                        }
+//                        } else {
+//                            // No history left, so disable this callback and trigger back again to exit
+//                            isEnabled = false
+//                            onBackPressedDispatcher.onBackPressed()
+//                        }
+                    }
+                    // If result is "true", the Vue app handled it, so do nothing
+                }
+            }
+        })
     }
 
     /**
