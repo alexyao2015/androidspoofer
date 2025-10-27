@@ -40,6 +40,7 @@ import org.json.JSONArray
 import org.json.JSONObject
 import androidx.core.net.toUri
 import com.google.android.gms.ads.identifier.AdvertisingIdClient
+import androidx.core.graphics.scale
 
 
 class ActivityWebview : AppCompatActivity() {
@@ -318,15 +319,23 @@ class ActivityWebview : AppCompatActivity() {
         /**
          * Get the app icon for a given package name as a base64 encoded string.
          * @param packageName The package name of the app
-         * @return Base64 encoded PNG image string, or empty string if app not found
+         * @return Base64 encoded WebP image string, or empty string if app not found or is default icon
          */
         @JavascriptInterface
         fun getAppIcon(packageName: String): String {
             return try {
                 val icon: Drawable = pm.getApplicationIcon(packageName)
+                
+                // Convert to bitmap and scale down to 100x100 for performance
                 val bitmap = Utils.drawableToBitmap(icon)
+                val scaledBitmap = bitmap.scale(100, 100)
+                
                 val outputStream = ByteArrayOutputStream()
-                bitmap.compress(Bitmap.CompressFormat.PNG, 100, outputStream)
+                // Use WebP with 80% quality for much better compression
+                scaledBitmap.compress(Bitmap.CompressFormat.WEBP, 80, outputStream)
+                bitmap.recycle()
+                scaledBitmap.recycle()
+                
                 val byteArray = outputStream.toByteArray()
                 Base64.encodeToString(byteArray, Base64.NO_WRAP)
             } catch (e: Exception) {
