@@ -15,6 +15,7 @@ import android.net.wifi.WifiManager
 import android.text.format.Formatter
 import androidx.activity.result.ActivityResultLauncher
 import androidx.core.content.ContextCompat
+import androidx.core.graphics.createBitmap
 import androidx.core.net.toUri
 import com.google.android.gms.ads.identifier.AdvertisingIdClient
 import com.google.android.gms.appset.AppSet
@@ -34,7 +35,6 @@ import java.net.Inet4Address
 import java.net.NetworkInterface
 import java.util.HexFormat
 import java.util.TimeZone
-import androidx.core.graphics.createBitmap
 
 
 /**
@@ -235,18 +235,19 @@ object Utils {
     /**
      * Get all device IP addresses
      * Collects both WiFi and network interface IPs
-     * 
+     *
      * @param context Application context
      * @return All IP addresses separated by newlines, or empty string if none available
      */
     @Suppress("DEPRECATION")
     fun getIpAddress(context: Context): String {
         val ipAddresses = mutableListOf<String>()
-        
+
         try {
             // Try to get WiFi IP address (requires location permission)
             if (hasLocationPermission(context)) {
-                val wifiManager = context.applicationContext.getSystemService(Context.WIFI_SERVICE) as? WifiManager
+                val wifiManager =
+                    context.applicationContext.getSystemService(Context.WIFI_SERVICE) as? WifiManager
                 wifiManager?.connectionInfo?.ipAddress?.let { ipInt ->
                     if (ipInt != 0) {
                         val wifiIp = Formatter.formatIpAddress(ipInt)
@@ -256,7 +257,7 @@ object Utils {
                     }
                 }
             }
-            
+
             // Get all network interface IP addresses
             NetworkInterface.getNetworkInterfaces()?.toList()?.forEach { networkInterface ->
                 networkInterface.inetAddresses?.toList()?.forEach { inetAddress ->
@@ -273,13 +274,13 @@ object Utils {
         } catch (e: Exception) {
             e.printStackTrace()
         }
-        
+
         return ipAddresses.joinToString("\n")
     }
 
     /**
      * Get the system's default timezone
-     * 
+     *
      * @return Timezone ID as a string (e.g., "America/New_York", "Europe/London")
      */
     fun getSystemTimeZone(): String {
@@ -293,7 +294,7 @@ object Utils {
 
     /**
      * Check if location permission is granted
-     * 
+     *
      * @param context Application context
      * @return true if either FINE or COARSE location permission is granted
      */
@@ -313,7 +314,7 @@ object Utils {
 
     /**
      * Request location permission if not already granted
-     * 
+     *
      * @param context Application context
      * @param launcher ActivityResultLauncher to trigger permission request
      */
