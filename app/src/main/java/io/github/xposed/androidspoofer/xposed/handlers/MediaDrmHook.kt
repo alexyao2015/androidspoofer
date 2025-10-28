@@ -22,32 +22,37 @@ object MediaDrmHook {
         replacementKey: String,
         newValue: String
     ) {
-        XposedHelpers.findAndHookMethod(
-            MediaDrm::class.java,
-            "getPropertyByteArray",
-            String::class.java,
-            object : XC_MethodHook() {
-                private val replacementBytes: ByteArray = hexToBytes(newValue)
+        try {
+            XposedHelpers.findAndHookMethod(
+                MediaDrm::class.java,
+                "getPropertyByteArray",
+                String::class.java,
+                object : XC_MethodHook() {
+                    private val replacementBytes: ByteArray = hexToBytes(newValue)
 
-                override fun afterHookedMethod(param: MethodHookParam) {
-                    val wantedKey = param.args[0] as String
-                    // only change if we are checking for the specific key
-                    if (wantedKey !== replacementKey) return
+                    override fun afterHookedMethod(param: MethodHookParam) {
+                        val wantedKey = param.args[0] as String
+                        // only change if we are checking for the specific key
+                        if (wantedKey !== replacementKey) return
 
-                    // only change if not null
-                    if (param.result == null) return
+                        // only change if not null
+                        if (param.result == null) return
 
-                    // convert new value to hex
-                    val original = bytesToHex(param.result as ByteArray)
+                        // convert new value to hex
+                        val original = bytesToHex(param.result as ByteArray)
 
-                    param.result = replacementBytes
-                    util.log(
-                        TAG,
-                        "${lpparam.packageName}: Changed $replacementKey from $original -> $newValue"
-                    )
+                        param.result = replacementBytes
+                        util.log(
+                            TAG,
+                            "${lpparam.packageName}: Changed $replacementKey from $original -> $newValue"
+                        )
+                    }
                 }
-            }
-        )
+            )
+            util.log(TAG, "Successfully hooked MediaDrm.getPropertyByteArray for ${lpparam.packageName}")
+        } catch (t: Throwable) {
+            util.log(TAG, "Failed to hook MediaDrm.getPropertyByteArray: ${t.message}")
+        }
     }
 }
 

@@ -43,7 +43,6 @@ class XposedInit : IXposedHookLoadPackage {
                     Settings.Secure.ANDROID_ID,
                     conf.value
                 )
-                util.log(tag, "${conf.type} hooked in ${lpparam.packageName}")
             }
             if (conf.type == Utils.ConfigAppsType.DRM_ID) {
                 MediaDrmHook.hookGetPropertyByteArray(
@@ -51,14 +50,12 @@ class XposedInit : IXposedHookLoadPackage {
                     MediaDrm.PROPERTY_DEVICE_UNIQUE_ID,
                     conf.value
                 )
-                util.log(tag, "${conf.type} hooked in ${lpparam.packageName}")
             }
             if (conf.type == Utils.ConfigAppsType.APPSET_ID) {
                 AppSetIdHook.hookBinderTransact(
                     lpparam,
                     conf.value
                 )
-                util.log(tag, "${conf.type} hooked in ${lpparam.packageName}")
             }
             if (conf.type == Utils.ConfigAppsType.TIMEZONE) {
                 TimeZoneHook.hookGetDefault(
@@ -69,7 +66,6 @@ class XposedInit : IXposedHookLoadPackage {
                     lpparam,
                     conf.value
                 )
-                util.log(tag, "${conf.type} hooked in ${lpparam.packageName}")
             }
         }
     }
