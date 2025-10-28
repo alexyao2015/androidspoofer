@@ -55,6 +55,33 @@ export const appConfigTypeMetadata: IAppConfigTypeMetadata = Object.freeze({
     },
     selectItems: TIMEZONES,
   },
+  ip_address: {
+    key: "ip_address",
+    friendly: "IP Address",
+    generate: () => {
+      // Generate a random private IP address from one of the three private ranges
+      const range = Math.floor(Math.random() * 3);
+      const octet3 = Math.floor(Math.random() * 256);
+      const octet4 = Math.floor(Math.random() * 254) + 1; // Avoid .0
+
+      if (range === 0) {
+        // 10.x.x.x (10.0.0.0/8)
+        const octet2 = Math.floor(Math.random() * 256);
+        return `10.${octet2}.${octet3}.${octet4}`;
+      } else if (range === 1) {
+        // 172.16.x.x to 172.31.x.x (172.16.0.0/12)
+        const octet2 = Math.floor(Math.random() * 16) + 16; // 16-31
+        return `172.${octet2}.${octet3}.${octet4}`;
+      } else {
+        // 192.168.x.x (192.168.0.0/16)
+        return `192.168.${octet3}.${octet4}`;
+      }
+    },
+    validate: (value: string) => {
+      // Validate IPv4 address format
+      return /^((25[0-5]|(2[0-4]|1\d|[1-9]|)\d)\.?\b){4}$/.test(value);
+    },
+  },
 });
 
 export enum AppConfigType {
@@ -62,4 +89,5 @@ export enum AppConfigType {
   drm_id = "drm_id",
   appset_id = "appset_id",
   timezone = "timezone",
+  ip_address = "ip_address",
 }

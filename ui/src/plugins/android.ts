@@ -42,6 +42,11 @@ try {
             value: "timezone_setting_value",
             type: AppConfigType.timezone,
           },
+          {
+            key: "my.app.io",
+            value: "192.168.1.100",
+            type: AppConfigType.ip_address,
+          },
         ],
       },
     };

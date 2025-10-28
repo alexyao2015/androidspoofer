@@ -20,6 +20,7 @@ export interface IAppConfigTypeMetadata {
   drm_id: IAppConfigTypeMeta;
   appset_id: IAppConfigTypeMeta;
   timezone: IAppConfigTypeMeta;
+  ip_address: IAppConfigTypeMeta;
 }
 export interface IAppsConfig {
   key: string;
@@ -34,6 +35,7 @@ export interface IAppProfile {
     drm_id?: string;
     appset_id?: string;
     timezone?: TimezoneType;
+    ip_address?: string;
   };
 }
 

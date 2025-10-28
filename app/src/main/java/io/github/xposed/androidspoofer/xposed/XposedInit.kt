@@ -11,6 +11,7 @@ import io.github.xposed.androidspoofer.PreferencesManager
 import io.github.xposed.androidspoofer.Utils
 import io.github.xposed.androidspoofer.xposed.XposedUtils.Factory.util
 import io.github.xposed.androidspoofer.xposed.handlers.AppSetIdHook
+import io.github.xposed.androidspoofer.xposed.handlers.IpAddressHook
 import io.github.xposed.androidspoofer.xposed.handlers.MediaDrmHook
 import io.github.xposed.androidspoofer.xposed.handlers.SecureSettingsHook
 import io.github.xposed.androidspoofer.xposed.handlers.TimeZoneHook
@@ -44,6 +45,9 @@ class XposedInit : IXposedHookLoadPackage {
                 }
                 Utils.ConfigAppsType.TIMEZONE -> {
                     TimeZoneHook.hook(lpparam, conf.value)
+                }
+                Utils.ConfigAppsType.IP_ADDRESS -> {
+                    IpAddressHook.hook(lpparam, conf.value)
                 }
             }
         }
