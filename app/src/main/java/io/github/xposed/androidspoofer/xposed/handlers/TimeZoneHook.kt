@@ -9,13 +9,16 @@ import java.util.TimeZone
 /**
  * Unified hook handler for TimeZone methods
  */
-object TimeZoneHook {
-    private val TAG = this.javaClass.simpleName
+object TimeZoneHook : XposedHook {
+    override fun hook(lpparam: LoadPackageParam, newValue: String) {
+        hookGetDefault(lpparam, newValue)
+        hookGetID(lpparam, newValue)
+    }
 
     /**
      * Hooks TimeZone.getDefault to replace the system timezone with a custom value
      */
-    fun hookGetDefault(lpparam: LoadPackageParam, newTimeZoneId: String) {
+    private fun hookGetDefault(lpparam: LoadPackageParam, newTimeZoneId: String) {
         try {
             XposedHelpers.findAndHookMethod(
                 TimeZone::class.java,
@@ -49,7 +52,7 @@ object TimeZoneHook {
     /**
      * Hooks TimeZone.getID to replace the timezone ID with a custom value
      */
-    fun hookGetID(lpparam: LoadPackageParam, newTimeZoneId: String) {
+    private fun hookGetID(lpparam: LoadPackageParam, newTimeZoneId: String) {
         try {
             XposedHelpers.findAndHookMethod(
                 TimeZone::class.java,

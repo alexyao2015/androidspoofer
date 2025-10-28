@@ -32,40 +32,19 @@ class XposedInit : IXposedHookLoadPackage {
         for (conf in prefManager.rw_config_apps) {
             if (!lpparam.packageName.equals(conf.key)) continue
 
-            if (conf.type == Utils.ConfigAppsType.ANDROID_ID) {
-                SecureSettingsHook.hookGetString(
-                    lpparam,
-                    Settings.Secure.ANDROID_ID,
-                    conf.value
-                )
-                SecureSettingsHook.hookGetStringForUser(
-                    lpparam,
-                    Settings.Secure.ANDROID_ID,
-                    conf.value
-                )
-            }
-            if (conf.type == Utils.ConfigAppsType.DRM_ID) {
-                MediaDrmHook.hookGetPropertyByteArray(
-                    lpparam,
-                    MediaDrm.PROPERTY_DEVICE_UNIQUE_ID,
-                    conf.value
-                )
-            }
-            if (conf.type == Utils.ConfigAppsType.APPSET_ID) {
-                AppSetIdHook.hookBinderTransact(
-                    lpparam,
-                    conf.value
-                )
-            }
-            if (conf.type == Utils.ConfigAppsType.TIMEZONE) {
-                TimeZoneHook.hookGetDefault(
-                    lpparam,
-                    conf.value
-                )
-                TimeZoneHook.hookGetID(
-                    lpparam,
-                    conf.value
-                )
+            when (conf.type) {
+                Utils.ConfigAppsType.ANDROID_ID -> {
+                    SecureSettingsHook.hook(lpparam, conf.value)
+                }
+                Utils.ConfigAppsType.DRM_ID -> {
+                    MediaDrmHook.hook(lpparam, conf.value)
+                }
+                Utils.ConfigAppsType.APPSET_ID -> {
+                    AppSetIdHook.hook(lpparam, conf.value)
+                }
+                Utils.ConfigAppsType.TIMEZONE -> {
+                    TimeZoneHook.hook(lpparam, conf.value)
+                }
             }
         }
     }

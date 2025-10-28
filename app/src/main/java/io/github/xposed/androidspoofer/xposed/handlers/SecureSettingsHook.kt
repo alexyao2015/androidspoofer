@@ -10,13 +10,16 @@ import io.github.xposed.androidspoofer.xposed.XposedUtils.Factory.util
 /**
  * Unified hook handler for Settings.Secure methods
  */
-object SecureSettingsHook {
-    private val TAG = this.javaClass.simpleName
+object SecureSettingsHook : XposedHook {
+    override fun hook(lpparam: LoadPackageParam, newValue: String) {
+        hookGetString(lpparam, Settings.Secure.ANDROID_ID, newValue)
+        hookGetStringForUser(lpparam, Settings.Secure.ANDROID_ID, newValue)
+    }
 
     /**
      * Hooks Settings.Secure.getString to replace specific keys with custom values
      */
-    fun hookGetString(lpparam: LoadPackageParam, replacementKey: String, newValue: String) {
+    private fun hookGetString(lpparam: LoadPackageParam, replacementKey: String, newValue: String) {
         try {
             XposedHelpers.findAndHookMethod(
                 Settings.Secure::class.java,
@@ -53,7 +56,7 @@ object SecureSettingsHook {
     /**
      * Hooks Settings.Secure.getStringForUser to replace specific keys with custom values
      */
-    fun hookGetStringForUser(lpparam: LoadPackageParam, replacementKey: String, newValue: String) {
+    private fun hookGetStringForUser(lpparam: LoadPackageParam, replacementKey: String, newValue: String) {
         try {
             XposedHelpers.findAndHookMethod(
                 Settings.Secure::class.java,

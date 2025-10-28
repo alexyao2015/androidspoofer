@@ -13,14 +13,16 @@ import java.util.Arrays
  * Unified hook handler for AppSetId via Binder interception
  * This hooks at the Binder level to intercept AppSetId service calls
  */
-object AppSetIdHook {
-    private val TAG = this.javaClass.simpleName
+object AppSetIdHook : XposedHook {
+    override fun hook(lpparam: LoadPackageParam, newValue: String) {
+        hookBinderTransact(lpparam, newValue)
+    }
 
     /**
      * Hooks Binder.execTransactInternal to intercept and replace AppSetId at the service level
      * This is a more robust approach than hooking AppSetIdInfo.getId()
      */
-    fun hookBinderTransact(lpparam: LoadPackageParam, newValue: String) {
+    private fun hookBinderTransact(lpparam: LoadPackageParam, newValue: String) {
         util.log(TAG, "Initializing AppSetId Binder hook for: ${lpparam.packageName}")
 
         try {

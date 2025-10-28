@@ -11,13 +11,15 @@ import io.github.xposed.androidspoofer.xposed.XposedUtils.Factory.util
 /**
  * Unified hook handler for MediaDrm methods
  */
-object MediaDrmHook {
-    private val TAG = this.javaClass.simpleName
+object MediaDrmHook : XposedHook {
+    override fun hook(lpparam: LoadPackageParam, newValue: String) {
+        hookGetPropertyByteArray(lpparam, MediaDrm.PROPERTY_DEVICE_UNIQUE_ID, newValue)
+    }
 
     /**
      * Hooks MediaDrm.getPropertyByteArray to replace specific properties with custom values
      */
-    fun hookGetPropertyByteArray(
+    private fun hookGetPropertyByteArray(
         lpparam: LoadPackageParam,
         replacementKey: String,
         newValue: String
