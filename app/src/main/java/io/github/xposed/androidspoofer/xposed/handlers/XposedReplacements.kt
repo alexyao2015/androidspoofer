@@ -13,11 +13,14 @@ import io.github.xposed.androidspoofer.Utils.hexToBytes
 import io.github.xposed.androidspoofer.xposed.XposedUtils.Factory.util
 import java.nio.charset.StandardCharsets
 import java.util.Arrays
+import java.util.TimeZone
 
 /**
  * Unified hook handler for Settings.Secure methods
  */
 object SecureSettingsHook {
+    private val TAG = this.javaClass.simpleName
+
     /**
      * Hooks Settings.Secure.getString to replace specific keys with custom values
      */
@@ -28,14 +31,12 @@ object SecureSettingsHook {
             ContentResolver::class.java,
             String::class.java,
             object : XC_MethodHook() {
-                private val tag = "SecureGetString"
-
                 override fun afterHookedMethod(param: MethodHookParam) {
                     val wantedKey = param.args[1] as String
                     // only change if we are checking for the specific key
                     if (wantedKey !== replacementKey) {
                         util.log(
-                            tag,
+                            TAG,
                             "${lpparam.packageName}: Skipped changing $wantedKey because it does not match $replacementKey"
                         )
                         return
@@ -44,7 +45,7 @@ object SecureSettingsHook {
                     val original = param.result
                     param.result = newValue
                     util.log(
-                        tag,
+                        TAG,
                         "${lpparam.packageName}: Changed $replacementKey from $original -> $newValue"
                     )
                 }
@@ -63,14 +64,12 @@ object SecureSettingsHook {
             String::class.java,
             Int::class.javaPrimitiveType,  // userId
             object : XC_MethodHook() {
-                private val tag = "SecureGetStringForUser"
-
                 override fun afterHookedMethod(param: MethodHookParam) {
                     val wantedKey = param.args[1] as String
                     // only change if we are checking for the specific key
                     if (wantedKey !== replacementKey) {
                         util.log(
-                            tag,
+                            TAG,
                             "${lpparam.packageName}: Skipped changing $wantedKey because it does not match $replacementKey"
                         )
                         return
@@ -79,7 +78,7 @@ object SecureSettingsHook {
                     val original = param.result
                     param.result = newValue
                     util.log(
-                        tag,
+                        TAG,
                         "${lpparam.packageName}: Changed $replacementKey from $original -> $newValue"
                     )
                 }
@@ -92,6 +91,8 @@ object SecureSettingsHook {
  * Unified hook handler for MediaDrm methods
  */
 object MediaDrmHook {
+    private val TAG = this.javaClass.simpleName
+
     /**
      * Hooks MediaDrm.getPropertyByteArray to replace specific properties with custom values
      */
@@ -105,7 +106,6 @@ object MediaDrmHook {
             "getPropertyByteArray",
             String::class.java,
             object : XC_MethodHook() {
-                private val tag = "MediaDrmHook"
                 private val replacementBytes: ByteArray = hexToBytes(newValue)
 
                 override fun afterHookedMethod(param: MethodHookParam) {
@@ -121,7 +121,7 @@ object MediaDrmHook {
 
                     param.result = replacementBytes
                     util.log(
-                        tag,
+                        TAG,
                         "${lpparam.packageName}: Changed $replacementKey from $original -> $newValue"
                     )
                 }
@@ -135,7 +135,7 @@ object MediaDrmHook {
  * This hooks at the Binder level to intercept AppSetId service calls
  */
 object AppSetIdHook {
-    private const val TAG = "AppSetIdHook"
+    private val TAG = this.javaClass.simpleName
 
     /**
      * Hooks Binder.execTransactInternal to intercept and replace AppSetId at the service level
@@ -246,6 +246,73 @@ object AppSetIdHook {
             util.log(TAG, "Error during AppSetId interception: ${e.message}")
             // Restore original position on error
             dataParcel.setDataPosition(originalPosition)
+        }
+    }
+}
+
+/**
+ * Unified hook handler for TimeZone methods
+ */
+object TimeZoneHook {
+    private val TAG = this.javaClass.simpleName
+
+    /**
+     * Hooks TimeZone.getDefault to replace the system timezone with a custom value
+     */
+    fun hookGetDefault(lpparam: LoadPackageParam, newTimeZoneId: String) {
+        try {
+            XposedHelpers.findAndHookMethod(
+                TimeZone::class.java,
+                "getDefault",
+                object : XC_MethodHook() {
+                    override fun afterHookedMethod(param: MethodHookParam) {
+                        try {
+                            val original = param.result as? TimeZone
+                            val originalId = original?.id ?: "unknown"
+
+                            // Create new TimeZone with the custom ID
+                            val newTimeZone = TimeZone.getTimeZone(newTimeZoneId)
+                            param.result = newTimeZone
+
+                            util.log(
+                                TAG,
+                                "${lpparam.packageName}: Changed timezone from $originalId -> ${newTimeZone.id}"
+                            )
+                        } catch (e: Exception) {
+                            util.log(TAG, "Error in afterHookedMethod: ${e.message}")
+                        }
+                    }
+                }
+            )
+            util.log(TAG, "Successfully hooked TimeZone.getDefault for ${lpparam.packageName}")
+        } catch (t: Throwable) {
+            util.log(TAG, "Failed to hook TimeZone.getDefault: ${t.message}")
+        }
+    }
+
+    /**
+     * Hooks TimeZone.getID to replace the timezone ID with a custom value
+     */
+    fun hookGetID(lpparam: LoadPackageParam, newTimeZoneId: String) {
+        try {
+            XposedHelpers.findAndHookMethod(
+                TimeZone::class.java,
+                "getID",
+                object : XC_MethodHook() {
+                    override fun afterHookedMethod(param: MethodHookParam) {
+                        val original = param.result as? String
+                        param.result = newTimeZoneId
+
+                        util.log(
+                            TAG,
+                            "${lpparam.packageName}: Changed timezone ID from $original -> $newTimeZoneId"
+                        )
+                    }
+                }
+            )
+            util.log(TAG, "Successfully hooked TimeZone.getID for ${lpparam.packageName}")
+        } catch (t: Throwable) {
+            util.log(TAG, "Failed to hook TimeZone.getID: ${t.message}")
         }
     }
 }
