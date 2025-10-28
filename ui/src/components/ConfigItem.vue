@@ -10,6 +10,12 @@ const props = defineProps<{
   type: AppConfigType;
   config: IAppsConfig | null;
   appId: string;
+  isSelected: boolean;
+}>();
+
+// Define emits
+const emit = defineEmits<{
+  toggleSelection: [];
 }>();
 
 // Check if this type should use a dropdown (based on metadata)
@@ -69,7 +75,7 @@ const handleRegenerate = () => {
 
 <template>
   <v-row class="mb-2">
-    <v-col cols="7">
+    <v-col>
       <!-- Dropdown for select types with search/filter capability -->
       <v-autocomplete
         v-if="config && isSelectType"
@@ -112,14 +118,17 @@ const handleRegenerate = () => {
       >
       </v-textarea>
     </v-col>
-    <v-col cols="4" class="d-flex align-stretch">
+    <v-col
+      class="d-flex align-stretch"
+      style="width: 150px; max-width: 150px; flex: 0 0 150px"
+    >
       <!-- If config exists: show clear and regenerate buttons side by side -->
       <template v-if="config">
         <div class="d-flex ga-1" style="width: 100%">
           <v-btn
             @click="handleClear"
             color="warning"
-            style="min-width: 48px; flex: 1; height: 100%"
+            style="flex: 1; height: 100%"
             title="Clear configuration"
             size="small"
           >
@@ -127,7 +136,7 @@ const handleRegenerate = () => {
           </v-btn>
           <v-btn
             @click="handleRegenerate"
-            style="min-width: 48px; flex: 1; height: 100%"
+            style="flex: 1; height: 100%"
             title="Regenerate value"
             size="small"
           >
@@ -135,18 +144,27 @@ const handleRegenerate = () => {
           </v-btn>
         </div>
       </template>
-      <!-- If config doesn't exist: show add button -->
+      <!-- If config doesn't exist: show add button overlaying the same space -->
       <template v-else>
         <v-btn
           @click="handleAdd"
           color="primary"
-          style="min-width: 48px; width: 100%; height: 100%"
+          style="width: 100%; height: 100%"
           title="Add configuration"
           size="small"
         >
           <v-icon :icon="mdiPlus"></v-icon>
         </v-btn>
       </template>
+    </v-col>
+    <v-col cols="auto" class="d-flex align-center">
+      <v-checkbox
+        :model-value="isSelected"
+        @update:model-value="emit('toggleSelection')"
+        hide-details
+        density="compact"
+        :disabled="!config"
+      />
     </v-col>
   </v-row>
 </template>
