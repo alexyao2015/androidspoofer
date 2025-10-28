@@ -1,7 +1,5 @@
 package io.github.xposed.androidspoofer.xposed
 
-import android.media.MediaDrm
-import android.provider.Settings
 import de.robv.android.xposed.IXposedHookLoadPackage
 import de.robv.android.xposed.XSharedPreferences
 import de.robv.android.xposed.callbacks.XC_LoadPackage
@@ -37,15 +35,19 @@ class XposedInit : IXposedHookLoadPackage {
                 Utils.ConfigAppsType.ANDROID_ID -> {
                     SecureSettingsHook.hook(lpparam, conf.value)
                 }
+
                 Utils.ConfigAppsType.DRM_ID -> {
                     MediaDrmHook.hook(lpparam, conf.value)
                 }
+
                 Utils.ConfigAppsType.APPSET_ID -> {
                     AppSetIdHook.hook(lpparam, conf.value)
                 }
+
                 Utils.ConfigAppsType.TIMEZONE -> {
                     TimeZoneHook.hook(lpparam, conf.value)
                 }
+
                 Utils.ConfigAppsType.IP_ADDRESS -> {
                     IpAddressHook.hook(lpparam, conf.value)
                 }

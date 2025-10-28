@@ -14,7 +14,7 @@ interface XposedHook {
 
     /**
      * Apply hooks for the given package with the specified replacement value
-     * 
+     *
      * @param lpparam LoadPackageParam containing package information
      * @param newValue The new value to replace with (format depends on implementation)
      */

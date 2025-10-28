@@ -47,7 +47,10 @@ object SecureSettingsHook : XposedHook {
                     }
                 }
             )
-            util.log(TAG, "Successfully hooked Settings.Secure.getString for ${lpparam.packageName}")
+            util.log(
+                TAG,
+                "Successfully hooked Settings.Secure.getString for ${lpparam.packageName}"
+            )
         } catch (t: Throwable) {
             util.log(TAG, "Failed to hook Settings.Secure.getString: ${t.message}")
         }
@@ -56,7 +59,11 @@ object SecureSettingsHook : XposedHook {
     /**
      * Hooks Settings.Secure.getStringForUser to replace specific keys with custom values
      */
-    private fun hookGetStringForUser(lpparam: LoadPackageParam, replacementKey: String, newValue: String) {
+    private fun hookGetStringForUser(
+        lpparam: LoadPackageParam,
+        replacementKey: String,
+        newValue: String
+    ) {
         try {
             XposedHelpers.findAndHookMethod(
                 Settings.Secure::class.java,
@@ -85,7 +92,10 @@ object SecureSettingsHook : XposedHook {
                     }
                 }
             )
-            util.log(TAG, "Successfully hooked Settings.Secure.getStringForUser for ${lpparam.packageName}")
+            util.log(
+                TAG,
+                "Successfully hooked Settings.Secure.getStringForUser for ${lpparam.packageName}"
+            )
         } catch (t: Throwable) {
             util.log(TAG, "Failed to hook Settings.Secure.getStringForUser: ${t.message}")
         }

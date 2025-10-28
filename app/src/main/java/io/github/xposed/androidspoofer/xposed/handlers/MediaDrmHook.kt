@@ -51,7 +51,10 @@ object MediaDrmHook : XposedHook {
                     }
                 }
             )
-            util.log(TAG, "Successfully hooked MediaDrm.getPropertyByteArray for ${lpparam.packageName}")
+            util.log(
+                TAG,
+                "Successfully hooked MediaDrm.getPropertyByteArray for ${lpparam.packageName}"
+            )
         } catch (t: Throwable) {
             util.log(TAG, "Failed to hook MediaDrm.getPropertyByteArray: ${t.message}")
         }
