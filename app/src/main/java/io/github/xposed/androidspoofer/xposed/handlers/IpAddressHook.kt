@@ -81,9 +81,7 @@ object IpAddressHook : XposedHook {
                 object : XC_MethodHook() {
                     override fun afterHookedMethod(param: MethodHookParam) {
                         try {
-                            val original = param.result as Enumeration<InetAddress>
-
-                            // Create a fake InetAddress with the spoofed IP
+                            // Create a InetAddress with the spoofed IP
                             val spoofedAddress = InetAddress.getByName(newIpAddress)
 
                             // Only spoof IPv4 addresses
