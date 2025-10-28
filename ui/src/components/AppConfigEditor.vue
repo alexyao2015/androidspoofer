@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { mdiArrowLeft } from "@mdi/js";
+import { mdiArrowLeft, mdiReload } from "@mdi/js";
 import {
   computed,
   defineAsyncComponent,
@@ -75,6 +75,15 @@ const allConfigTypes = computed(() => {
 const handleBack = () => {
   router.push({ name: "home" });
 };
+
+const handleRegenerateAll = () => {
+  // Regenerate all configured values for this app
+  pref.rwPreferences.config.apps.forEach((config) => {
+    if (config.key === props.appId && config.type in appConfigTypeMetadata) {
+      config.value = appConfigTypeMetadata[config.type].generate();
+    }
+  });
+};
 </script>
 
 <template>
@@ -94,6 +103,16 @@ const handleBack = () => {
       <v-col>
         <h2 class="text-h5 mb-2">{{ appFriendlyName }}</h2>
         <p class="text-caption text-medium-emphasis">{{ appId }}</p>
+      </v-col>
+      <v-col cols="auto">
+        <v-btn
+          @click="handleRegenerateAll"
+          color="primary"
+          variant="tonal"
+          :prepend-icon="mdiReload"
+        >
+          Regenerate All
+        </v-btn>
       </v-col>
     </v-row>
 
