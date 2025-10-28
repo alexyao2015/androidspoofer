@@ -43,6 +43,8 @@ export interface IUniqueIds {
   gsfId: string;
   appsetId: string;
   adId: string;
+  ipAddress: string;
+  timeZone: string;
 }
 
 // rw preferences

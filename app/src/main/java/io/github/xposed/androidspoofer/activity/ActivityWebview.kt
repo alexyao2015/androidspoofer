@@ -47,6 +47,11 @@ class ActivityWebview : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.webview_main)
 
+        // Request location permission if not granted (needed for WiFi IP address)
+        Utils.requestLocationPermissionIfNeeded(
+            this,
+            registerForActivityResult(ActivityResultContracts.RequestPermission()) {})
+
         // Only show module not enabled alert for full variant
         if (pref == null && !BuildConfig.IS_CHECK_VARIANT) {
             AlertDialog.Builder(this).setMessage(R.string.module_not_enabled)
@@ -231,8 +236,6 @@ class ActivityWebview : AppCompatActivity() {
 
         @JavascriptInterface
         fun getUniqueIds(): String {
-
-
             return JSONObject().apply {
                 put("widevineId", Utils.getWidevineId())
                 put("playReadyId", Utils.getPlayreadyId())
@@ -243,6 +246,8 @@ class ActivityWebview : AppCompatActivity() {
                 put("gsfId", Utils.getGsfId(context))
                 put("appsetId", Utils.getAppsetId(context))
                 put("adId", Utils.getAdId(context))
+                put("ipAddress", Utils.getIpAddress(context))
+                put("timeZone", Utils.getSystemTimeZone())
             }.toString()
         }
 

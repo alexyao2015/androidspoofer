@@ -51,6 +51,8 @@ try {
       gsfId: "sample_gsf_id_value",
       appsetId: "sample_appset_id_value",
       adId: "sample_ad_id_value",
+      ipAddress: "sample_ip_address_value",
+      timeZone: "sample_time_zone_value",
     };
   }
 

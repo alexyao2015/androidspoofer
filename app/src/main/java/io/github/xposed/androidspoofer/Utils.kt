@@ -1,5 +1,6 @@
 package io.github.xposed.androidspoofer
 
+import android.Manifest
 import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
@@ -10,6 +11,10 @@ import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.Drawable
 import android.media.MediaDrm
 import android.net.Uri
+import android.net.wifi.WifiManager
+import android.text.format.Formatter
+import androidx.activity.result.ActivityResultLauncher
+import androidx.core.content.ContextCompat
 import androidx.core.net.toUri
 import com.google.android.gms.ads.identifier.AdvertisingIdClient
 import com.google.android.gms.appset.AppSet
@@ -25,7 +30,11 @@ import org.json.JSONObject
 import java.io.BufferedWriter
 import java.io.ByteArrayOutputStream
 import java.io.OutputStreamWriter
+import java.net.Inet4Address
+import java.net.NetworkInterface
 import java.util.HexFormat
+import java.util.TimeZone
+import androidx.core.graphics.createBitmap
 
 
 /**
@@ -121,13 +130,9 @@ object Utils {
         }
 
         val bitmap: Bitmap = if (drawable.intrinsicWidth <= 0 || drawable.intrinsicHeight <= 0) {
-            Bitmap.createBitmap(1, 1, Bitmap.Config.ARGB_8888)
+            createBitmap(1, 1)
         } else {
-            Bitmap.createBitmap(
-                drawable.intrinsicWidth,
-                drawable.intrinsicHeight,
-                Bitmap.Config.ARGB_8888
-            )
+            createBitmap(drawable.intrinsicWidth, drawable.intrinsicHeight)
         }
 
         val canvas = Canvas(bitmap)
@@ -146,7 +151,7 @@ object Utils {
             if (adId != null) {
                 return adId
             }
-        } catch (e: Exception) {
+        } catch (_: Exception) {
             return "exception"
         }
         return "null_id"
@@ -176,14 +181,18 @@ object Utils {
         if (!hasPermission(context, "com.google.android.providers.gsf.permission.READ_GSERVICES")) {
             return "no_permission"
         }
-        // Query the GSF provider with "android_id" key
         val query = context.contentResolver.query(
             uri, null, null,
             arrayOf("android_id"),
             null
         )
-        if (query!!.moveToFirst() && query!!.columnCount >= 2) {
-            return java.lang.Long.toHexString(query!!.getString(1).toLong())
+        try {
+            // Query the GSF provider with "android_id" key
+            if (query!!.moveToFirst() && query.columnCount >= 2) {
+                return java.lang.Long.toHexString(query.getString(1).toLong())
+            }
+        } finally {
+            query?.close()
         }
         return "not_found"
     }
@@ -221,6 +230,100 @@ object Utils {
             ""
         }
         return ""
+    }
+
+    /**
+     * Get all device IP addresses
+     * Collects both WiFi and network interface IPs
+     * 
+     * @param context Application context
+     * @return All IP addresses separated by newlines, or empty string if none available
+     */
+    @Suppress("DEPRECATION")
+    fun getIpAddress(context: Context): String {
+        val ipAddresses = mutableListOf<String>()
+        
+        try {
+            // Try to get WiFi IP address (requires location permission)
+            if (hasLocationPermission(context)) {
+                val wifiManager = context.applicationContext.getSystemService(Context.WIFI_SERVICE) as? WifiManager
+                wifiManager?.connectionInfo?.ipAddress?.let { ipInt ->
+                    if (ipInt != 0) {
+                        val wifiIp = Formatter.formatIpAddress(ipInt)
+                        if (wifiIp.isNotEmpty()) {
+                            ipAddresses.add(wifiIp)
+                        }
+                    }
+                }
+            }
+            
+            // Get all network interface IP addresses
+            NetworkInterface.getNetworkInterfaces()?.toList()?.forEach { networkInterface ->
+                networkInterface.inetAddresses?.toList()?.forEach { inetAddress ->
+                    if (!inetAddress.isLoopbackAddress && inetAddress is Inet4Address) {
+                        inetAddress.hostAddress?.let { address ->
+                            // Avoid duplicates
+                            if (!ipAddresses.contains(address)) {
+                                ipAddresses.add(address)
+                            }
+                        }
+                    }
+                }
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+        
+        return ipAddresses.joinToString("\n")
+    }
+
+    /**
+     * Get the system's default timezone
+     * 
+     * @return Timezone ID as a string (e.g., "America/New_York", "Europe/London")
+     */
+    fun getSystemTimeZone(): String {
+        return try {
+            TimeZone.getDefault().id
+        } catch (e: Exception) {
+            e.printStackTrace()
+            ""
+        }
+    }
+
+    /**
+     * Check if location permission is granted
+     * 
+     * @param context Application context
+     * @return true if either FINE or COARSE location permission is granted
+     */
+    fun hasLocationPermission(context: Context): Boolean {
+        val hasFineLocation = ContextCompat.checkSelfPermission(
+            context,
+            Manifest.permission.ACCESS_FINE_LOCATION
+        ) == PackageManager.PERMISSION_GRANTED
+
+        val hasCoarseLocation = ContextCompat.checkSelfPermission(
+            context,
+            Manifest.permission.ACCESS_COARSE_LOCATION
+        ) == PackageManager.PERMISSION_GRANTED
+
+        return hasFineLocation || hasCoarseLocation
+    }
+
+    /**
+     * Request location permission if not already granted
+     * 
+     * @param context Application context
+     * @param launcher ActivityResultLauncher to trigger permission request
+     */
+    fun requestLocationPermissionIfNeeded(
+        context: Context,
+        launcher: ActivityResultLauncher<String>
+    ) {
+        if (!hasLocationPermission(context)) {
+            launcher.launch(Manifest.permission.ACCESS_FINE_LOCATION)
+        }
     }
 
 }

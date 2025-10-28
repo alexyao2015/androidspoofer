@@ -20,6 +20,8 @@ const uniqueIds = computed(() => {
       gsfId: "",
       appsetId: "",
       adId: "",
+      ipAddress: "",
+      timeZone: "",
     };
   }
   return pref.uniqueIds as IUniqueIds;
@@ -101,6 +103,30 @@ const uniqueIds = computed(() => {
             <v-textarea
               label="Ad ID"
               :model-value="uniqueIds.adId"
+              readonly
+              variant="outlined"
+              density="comfortable"
+              rows="1"
+              auto-grow
+            >
+            </v-textarea>
+          </v-col>
+          <v-col cols="12">
+            <v-textarea
+              label="IP Address"
+              :model-value="uniqueIds.ipAddress"
+              readonly
+              variant="outlined"
+              density="comfortable"
+              rows="1"
+              auto-grow
+            >
+            </v-textarea>
+          </v-col>
+          <v-col cols="12">
+            <v-textarea
+              label="Time Zone"
+              :model-value="uniqueIds.timeZone"
               readonly
               variant="outlined"
               density="comfortable"
