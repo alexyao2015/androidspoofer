@@ -3,6 +3,7 @@ import { mdiReload, mdiPlus, mdiClose } from "@mdi/js";
 import { AppConfigType, appConfigTypeMetadata } from "../util/app_config";
 import { IAppsConfig } from "../util/types";
 import pref from "../plugins/store";
+import { computed } from "vue";
 
 // Define props
 const props = defineProps<{
@@ -10,6 +11,26 @@ const props = defineProps<{
   config: IAppsConfig | null;
   appId: string;
 }>();
+
+// Check if this type should use a dropdown (based on metadata)
+const isSelectType = computed(() => {
+  return !!appConfigTypeMetadata[props.type].selectItems;
+});
+
+// Get select items for dropdown types
+const selectItems = computed(() => {
+  return appConfigTypeMetadata[props.type].selectItems || [];
+});
+
+// Computed property for select value with proper typing
+const selectValue = computed({
+  get: () => props.config?.value,
+  set: (value: string | undefined) => {
+    if (props.config && value) {
+      props.config.value = value;
+    }
+  },
+});
 
 const validateValue = (value: any) => {
   if (!value) return "Required";
@@ -49,8 +70,23 @@ const handleRegenerate = () => {
 <template>
   <v-row class="mb-2">
     <v-col cols="7">
+      <!-- Dropdown for select types with search/filter capability -->
+      <v-autocomplete
+        v-if="config && isSelectType"
+        v-model="selectValue"
+        :label="appConfigTypeMetadata[type].friendly"
+        :items="selectItems"
+        validate-on="eager"
+        clearable
+        hide-details="auto"
+        :rules="[validateValue]"
+        variant="filled"
+        auto-select-first
+      >
+      </v-autocomplete>
+      <!-- Text area for other types -->
       <v-textarea
-        v-if="config"
+        v-else-if="config && !isSelectType"
         v-model="config.value"
         :label="appConfigTypeMetadata[type].friendly"
         validate-on="eager"
@@ -62,6 +98,7 @@ const handleRegenerate = () => {
         rows="1"
       >
       </v-textarea>
+      <!-- Disabled placeholder -->
       <v-textarea
         v-else
         :label="appConfigTypeMetadata[type].friendly"

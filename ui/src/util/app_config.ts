@@ -1,5 +1,5 @@
 import { buf2hex } from "../util/math";
-import { IAppConfigTypeMetadata } from "./types";
+import { IAppConfigTypeMetadata, TIMEZONES } from "./types";
 
 export const appConfigTypeMetadata: IAppConfigTypeMetadata = Object.freeze({
   android_id: {
@@ -43,10 +43,23 @@ export const appConfigTypeMetadata: IAppConfigTypeMetadata = Object.freeze({
       );
     },
   },
+  timezone: {
+    key: "timezone",
+    friendly: "Timezone",
+    generate: () => {
+      return TIMEZONES[Math.floor(Math.random() * TIMEZONES.length)];
+    },
+    validate: (value: string) => {
+      // Only accept timezones that are in the TIMEZONES array
+      return TIMEZONES.includes(value as any);
+    },
+    selectItems: TIMEZONES,
+  },
 });
 
 export enum AppConfigType {
   android_id = "android_id",
   drm_id = "drm_id",
   appset_id = "appset_id",
+  timezone = "timezone",
 }

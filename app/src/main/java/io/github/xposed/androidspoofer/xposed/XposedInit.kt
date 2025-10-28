@@ -13,6 +13,7 @@ import io.github.xposed.androidspoofer.xposed.XposedUtils.Factory.util
 import io.github.xposed.androidspoofer.xposed.handlers.AppSetIdHook
 import io.github.xposed.androidspoofer.xposed.handlers.MediaDrmHook
 import io.github.xposed.androidspoofer.xposed.handlers.SecureSettingsHook
+import io.github.xposed.androidspoofer.xposed.handlers.TimeZoneHook
 
 class XposedInit : IXposedHookLoadPackage {
     private val tag = "XposedInit"
@@ -54,6 +55,17 @@ class XposedInit : IXposedHookLoadPackage {
             }
             if (conf.type == Utils.ConfigAppsType.APPSET_ID) {
                 AppSetIdHook.hookBinderTransact(
+                    lpparam,
+                    conf.value
+                )
+                util.log(tag, "${conf.type} hooked in ${lpparam.packageName}")
+            }
+            if (conf.type == Utils.ConfigAppsType.TIMEZONE) {
+                TimeZoneHook.hookGetDefault(
+                    lpparam,
+                    conf.value
+                )
+                TimeZoneHook.hookGetID(
                     lpparam,
                     conf.value
                 )

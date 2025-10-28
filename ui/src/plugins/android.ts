@@ -37,6 +37,11 @@ try {
             value: "drm_setting_value",
             type: AppConfigType.drm_id,
           },
+          {
+            key: "my.app.io",
+            value: "timezone_setting_value",
+            type: AppConfigType.timezone,
+          },
         ],
       },
     };

@@ -26,6 +26,7 @@ import io.github.xposed.androidspoofer.Constants.PREF_JSON_RW
 import io.github.xposed.androidspoofer.Constants.PREF_JSON_RW_CONFIG_APPS_TYPE_ANDROID_ID
 import io.github.xposed.androidspoofer.Constants.PREF_JSON_RW_CONFIG_APPS_TYPE_APPSET_ID
 import io.github.xposed.androidspoofer.Constants.PREF_JSON_RW_CONFIG_APPS_TYPE_DRM_ID
+import io.github.xposed.androidspoofer.Constants.PREF_JSON_RW_CONFIG_APPS_TYPE_TIMEZONE
 import io.github.xposed.androidspoofer.Constants.WIDEVINE_UUID
 import org.json.JSONObject
 import java.io.BufferedWriter
@@ -93,7 +94,8 @@ object Utils {
     enum class ConfigAppsType {
         ANDROID_ID,
         DRM_ID,
-        APPSET_ID
+        APPSET_ID,
+        TIMEZONE
     }
 
     data class AppConfig(val key: String, val value: String, val type: ConfigAppsType)
@@ -107,6 +109,9 @@ object Utils {
         }
         if (typeString == PREF_JSON_RW_CONFIG_APPS_TYPE_APPSET_ID) {
             return ConfigAppsType.APPSET_ID
+        }
+        if (typeString == PREF_JSON_RW_CONFIG_APPS_TYPE_TIMEZONE) {
+            return ConfigAppsType.TIMEZONE
         }
         throw UnsupportedOperationException("Unable to decode app type")
     }

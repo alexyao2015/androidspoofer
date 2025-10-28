@@ -25,6 +25,7 @@ object Constants {
     val PREF_JSON_RW_CONFIG_APPS_TYPE_ANDROID_ID = "android_id"
     val PREF_JSON_RW_CONFIG_APPS_TYPE_DRM_ID = "drm_id"
     val PREF_JSON_RW_CONFIG_APPS_TYPE_APPSET_ID = "appset_id"
+    val PREF_JSON_RW_CONFIG_APPS_TYPE_TIMEZONE = "timezone"
 
     // ro prefs
     val PREF_JSON_RO = "ro"
